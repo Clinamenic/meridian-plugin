@@ -49,6 +49,12 @@ export class IndexManager {
     await this.writeIndex(index);
   }
 
+  async deleteRecord(txId: string): Promise<void> {
+    const index = await this.readIndex();
+    index.records = index.records.filter((r) => r.txId !== txId);
+    await this.writeIndex(index);
+  }
+
   private async writeIndex(index: ArchiveIndex): Promise<void> {
     const content = JSON.stringify(index, null, 2);
 

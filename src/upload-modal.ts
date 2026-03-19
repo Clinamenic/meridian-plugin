@@ -1,34 +1,72 @@
-import { App, Modal, Notice, TFile } from "obsidian";
+import * as fs from "fs";
+import * as fsPromises from "fs/promises";
+import { App, Modal, Notice } from "obsidian";
 import { ArweaveService } from "./arweave-service";
 import { IndexManager } from "./index-manager";
-import { parseAllowedExtensions } from "./settings";
-import type { ArweaveTag, PluginSettings, UploadResult } from "./types";
+import type { ArchiveRecord, ArweaveTag, PluginSettings, UploadResult } from "./types";
 
-type Phase = "select" | "tags" | "progress";
+type UploadPhase = "select" | "tags" | "progress";
+type ActiveTab = "upload" | "archive";
 
-interface FileEntry {
-  file: TFile;
-  selected: boolean;
-  checkboxEl?: HTMLInputElement;
+interface FsFile {
+  path: string;
+  name: string;
+  size: number;
 }
 
 interface ResultEntry {
-  file: TFile;
+  file: FsFile;
   status: "pending" | "uploading" | "done" | "error";
-  txId?: string;
-  gatewayUrl?: string;
-  error?: string;
   statusEl?: HTMLElement;
-  txIdEl?: HTMLElement;
+  detailEl?: HTMLElement;
+}
+
+type ElectronDialog = {
+  showOpenDialog: (
+    opts: Record<string, unknown>
+  ) => Promise<{ canceled: boolean; filePaths: string[] }>;
+};
+
+function getElectronDialog(): ElectronDialog | null {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return ((window as any).require("@electron/remote") as { dialog: ElectronDialog }).dialog;
+  } catch {
+    // fall through to legacy remote
+  }
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const electron = (window as any).require("electron") as {
+      remote?: { dialog: ElectronDialog };
+    };
+    return electron.remote?.dialog ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes === 0) return "0 B";
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
 }
 
 export class UploadModal extends Modal {
   private settings: PluginSettings;
-  private phase: Phase = "select";
-  private fileEntries: FileEntry[] = [];
+  private activeTab: ActiveTab = "upload";
+  private uploadPhase: UploadPhase = "select";
+  private selectedFiles: FsFile[] = [];
   private sessionTags: ArweaveTag[] = [];
   private results: ResultEntry[] = [];
   private uploadResults: UploadResult[] = [];
+
+  private tabContentEl!: HTMLElement;
+  private uploadTabBtn!: HTMLElement;
+  private archiveTabBtn!: HTMLElement;
+  private _summaryEl: HTMLElement | null = null;
+  private _progressCloseBtn: HTMLButtonElement | null = null;
 
   constructor(app: App, settings: PluginSettings) {
     super(app);
@@ -37,165 +75,154 @@ export class UploadModal extends Modal {
   }
 
   onOpen(): void {
-    this.buildPhase();
+    const { contentEl } = this;
+
+    const tabBar = contentEl.createDiv("meridian-tab-bar");
+    this.uploadTabBtn = tabBar.createDiv({ cls: "meridian-tab meridian-tab--active", text: "Upload" });
+    this.archiveTabBtn = tabBar.createDiv({ cls: "meridian-tab", text: "Archive" });
+
+    this.tabContentEl = contentEl.createDiv("meridian-tab-content");
+
+    this.uploadTabBtn.addEventListener("click", () => this.switchTab("upload"));
+    this.archiveTabBtn.addEventListener("click", () => this.switchTab("archive"));
+
+    this.renderActiveTab();
   }
 
   onClose(): void {
     this.contentEl.empty();
   }
 
-  private buildPhase(): void {
-    this.contentEl.empty();
-    if (this.phase === "select") this.buildSelectPhase();
-    else if (this.phase === "tags") this.buildTagsPhase();
+  private switchTab(tab: ActiveTab): void {
+    if (this.activeTab === tab) return;
+    this.activeTab = tab;
+    this.uploadTabBtn.toggleClass("meridian-tab--active", tab === "upload");
+    this.archiveTabBtn.toggleClass("meridian-tab--active", tab === "archive");
+    this.renderActiveTab();
+  }
+
+  private renderActiveTab(): void {
+    this.tabContentEl.empty();
+    if (this.activeTab === "upload") this.renderUploadTab();
+    else this.renderArchiveTab();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Upload tab
+  // ---------------------------------------------------------------------------
+
+  private renderUploadTab(): void {
+    if (this.uploadPhase === "select") this.buildSelectPhase();
+    else if (this.uploadPhase === "tags") this.buildTagsPhase();
     else this.buildProgressPhase();
   }
 
-  // -------------------------------------------------------------------------
-  // Phase 1: File Selection
-  // -------------------------------------------------------------------------
-
   private buildSelectPhase(): void {
-    const { contentEl } = this;
+    const el = this.tabContentEl;
 
-    const header = contentEl.createDiv("phase-header");
-    header.createEl("h2", { text: "Select files to upload" });
-    header.createEl("p", {
-      text: "Choose which vault files to archive on Arweave.",
+    el.createEl("h2", { text: "Select files" });
+    el.createEl("p", {
+      cls: "meridian-subtitle",
+      text: "Choose files from your filesystem to archive on Arweave.",
     });
 
-    const allowedExts = parseAllowedExtensions(this.settings.allowedExtensions);
-    const allFiles = this.app.vault.getFiles().sort((a, b) =>
-      a.path.localeCompare(b.path)
-    );
-
-    const visibleFiles = allFiles.filter((f) => {
-      if (allowedExts.size === 0) return true;
-      const ext = f.extension.toLowerCase();
-      return allowedExts.has(ext);
+    const browseBtn = el.createEl("button", {
+      text: "Browse files...",
+      cls: "mod-cta meridian-browse-btn",
     });
+    browseBtn.addEventListener("click", () => this.openFileDialog());
 
-    if (visibleFiles.length === 0) {
-      contentEl.createEl("p", {
-        text: "No files match the current extension filter. Check your plugin settings.",
-        cls: "mod-warning",
-      });
-      const btnRow = contentEl.createDiv("modal-button-container");
-      btnRow.createEl("button", { text: "Close" }).addEventListener("click", () =>
-        this.close()
-      );
-      return;
+    if (this.selectedFiles.length > 0) {
+      const list = el.createDiv("meridian-selected-files");
+      for (let i = 0; i < this.selectedFiles.length; i++) {
+        const f = this.selectedFiles[i];
+        const item = list.createDiv("meridian-selected-item");
+        const info = item.createDiv("meridian-selected-info");
+        info.createDiv({ cls: "meridian-selected-name", text: f.name });
+        info.createDiv({ cls: "meridian-selected-path", text: f.path });
+        const right = item.createDiv("meridian-selected-right");
+        right.createSpan({ cls: "file-size", text: formatBytes(f.size) });
+        const removeBtn = right.createEl("button", { text: "Remove", cls: "meridian-remove-btn" });
+        removeBtn.addEventListener("click", () => {
+          this.selectedFiles.splice(i, 1);
+          this.buildSelectPhase();
+        });
+      }
     }
 
-    if (this.fileEntries.length === 0) {
-      this.fileEntries = visibleFiles.map((f) => ({ file: f, selected: false }));
-    }
-
-    const controls = contentEl.createDiv("select-controls");
-    const selectAllBtn = controls.createEl("button", { text: "Select all" });
-    const deselectAllBtn = controls.createEl("button", { text: "Deselect all" });
-
-    selectAllBtn.addEventListener("click", () => {
-      this.fileEntries.forEach((entry) => {
-        entry.selected = true;
-        if (entry.checkboxEl) entry.checkboxEl.checked = true;
-      });
-      updateNextBtn();
-    });
-
-    deselectAllBtn.addEventListener("click", () => {
-      this.fileEntries.forEach((entry) => {
-        entry.selected = false;
-        if (entry.checkboxEl) entry.checkboxEl.checked = false;
-      });
-      updateNextBtn();
-    });
-
-    const list = contentEl.createDiv("file-list");
-
-    for (const entry of this.fileEntries) {
-      const item = list.createDiv("file-list-item");
-      const label = item.createEl("label");
-      const checkbox = label.createEl("input", { type: "checkbox" });
-      checkbox.checked = entry.selected;
-      entry.checkboxEl = checkbox;
-
-      checkbox.addEventListener("change", () => {
-        entry.selected = checkbox.checked;
-        updateNextBtn();
-      });
-
-      label.createSpan({ text: entry.file.path, cls: "file-path" });
-      label.createSpan({
-        text: formatBytes(entry.file.stat.size),
-        cls: "file-size",
+    const btnRow = el.createDiv("modal-button-container");
+    if (this.selectedFiles.length > 0) {
+      btnRow.createSpan({
+        cls: "meridian-count-label",
+        text: `${this.selectedFiles.length} file${this.selectedFiles.length === 1 ? "" : "s"} selected`,
       });
     }
-
-    const btnRow = contentEl.createDiv("modal-button-container");
-    const nextBtn = btnRow.createEl("button", {
-      text: "Next",
-      cls: "mod-cta",
-    });
-    nextBtn.disabled = true;
-
-    const updateNextBtn = () => {
-      nextBtn.disabled = !this.fileEntries.some((e) => e.selected);
-    };
-
+    const nextBtn = btnRow.createEl("button", { text: "Next", cls: "mod-cta" });
+    nextBtn.disabled = this.selectedFiles.length === 0;
     nextBtn.addEventListener("click", () => {
-      this.phase = "tags";
-      this.buildPhase();
+      this.uploadPhase = "tags";
+      this.renderUploadTab();
     });
   }
 
-  // -------------------------------------------------------------------------
-  // Phase 2: Tag Entry
-  // -------------------------------------------------------------------------
+  private async openFileDialog(): Promise<void> {
+    const dialog = getElectronDialog();
+    if (!dialog) {
+      new Notice("Could not access the system file dialog.");
+      return;
+    }
 
-  private buildTagsPhase(): void {
-    const { contentEl } = this;
-
-    const selected = this.fileEntries.filter((e) => e.selected);
-
-    const header = contentEl.createDiv("phase-header");
-    header.createEl("h2", { text: "Add Arweave tags" });
-    header.createEl("p", {
-      text: `These key/value tags will be attached to all ${selected.length} selected file${selected.length === 1 ? "" : "s"}.`,
+    const result = await dialog.showOpenDialog({
+      properties: ["openFile", "multiSelections"],
+      title: "Select files to upload to Arweave",
     });
 
-    const tagContainer = contentEl.createDiv("tag-container");
+    if (result.canceled || result.filePaths.length === 0) return;
 
-    if (this.sessionTags.length === 0) {
-      this.sessionTags = [];
+    for (const filePath of result.filePaths) {
+      if (this.selectedFiles.some((f) => f.path === filePath)) continue;
+      try {
+        const stat = fs.statSync(filePath);
+        this.selectedFiles.push({
+          path: filePath,
+          name: filePath.split(/[/\\]/).pop() ?? filePath,
+          size: stat.size,
+        });
+      } catch {
+        new Notice(`Could not read file info: ${filePath}`);
+      }
     }
+
+    this.buildSelectPhase();
+  }
+
+  private buildTagsPhase(): void {
+    const el = this.tabContentEl;
+
+    el.createEl("h2", { text: "Add Arweave tags" });
+    el.createEl("p", {
+      cls: "meridian-subtitle",
+      text: `Key/value tags applied to all ${this.selectedFiles.length} selected file${this.selectedFiles.length === 1 ? "" : "s"}.`,
+    });
+
+    const tagContainer = el.createDiv("tag-container");
 
     const renderTagRow = (tag: ArweaveTag, index: number): void => {
       const row = tagContainer.createDiv("tag-row");
-      row.dataset.index = String(index);
 
-      const keyInput = row.createEl("input", {
-        type: "text",
-        placeholder: "Key",
-      });
+      const keyInput = row.createEl("input", { type: "text", placeholder: "Key" });
       keyInput.value = tag.name;
       keyInput.addEventListener("input", () => {
         this.sessionTags[index].name = keyInput.value;
       });
 
-      const valueInput = row.createEl("input", {
-        type: "text",
-        placeholder: "Value",
-      });
+      const valueInput = row.createEl("input", { type: "text", placeholder: "Value" });
       valueInput.value = tag.value;
       valueInput.addEventListener("input", () => {
         this.sessionTags[index].value = valueInput.value;
       });
 
-      const removeBtn = row.createEl("button", {
-        text: "Remove",
-        cls: "tag-remove-btn",
-      });
+      const removeBtn = row.createEl("button", { text: "Remove", cls: "tag-remove-btn" });
       removeBtn.addEventListener("click", () => {
         this.sessionTags.splice(index, 1);
         tagContainer.empty();
@@ -205,74 +232,55 @@ export class UploadModal extends Modal {
 
     this.sessionTags.forEach((tag, i) => renderTagRow(tag, i));
 
-    const addTagBtn = contentEl.createEl("button", { text: "Add tag" });
+    const addTagBtn = el.createEl("button", { text: "Add tag", cls: "meridian-add-tag-btn" });
     addTagBtn.addEventListener("click", () => {
       const newTag: ArweaveTag = { name: "", value: "" };
       this.sessionTags.push(newTag);
       renderTagRow(newTag, this.sessionTags.length - 1);
     });
 
-    const btnRow = contentEl.createDiv("modal-button-container");
-
+    const btnRow = el.createDiv("modal-button-container");
     const backBtn = btnRow.createEl("button", { text: "Back" });
     backBtn.addEventListener("click", () => {
-      this.phase = "select";
-      this.buildPhase();
+      this.uploadPhase = "select";
+      this.renderUploadTab();
     });
 
-    const uploadBtn = btnRow.createEl("button", {
-      text: "Upload",
-      cls: "mod-cta",
-    });
+    const uploadBtn = btnRow.createEl("button", { text: "Upload", cls: "mod-cta" });
     uploadBtn.addEventListener("click", () => {
-      this.phase = "progress";
-      this.buildPhase();
+      this.uploadPhase = "progress";
+      this.renderUploadTab();
       this.runUploads();
     });
   }
 
-  // -------------------------------------------------------------------------
-  // Phase 3: Upload Progress
-  // -------------------------------------------------------------------------
-
   private buildProgressPhase(): void {
-    const { contentEl } = this;
-    const selected = this.fileEntries.filter((e) => e.selected);
+    const el = this.tabContentEl;
 
-    const header = contentEl.createDiv("phase-header");
-    header.createEl("h2", { text: "Uploading to Arweave" });
+    el.createEl("h2", { text: "Uploading to Arweave" });
 
-    const summaryEl = contentEl.createDiv("summary-stats");
-    summaryEl.setText(`0 / ${selected.length} complete`);
+    const summaryEl = el.createDiv({ cls: "summary-stats" });
+    summaryEl.setText(`0 / ${this.selectedFiles.length} complete`);
 
-    const resultsList = contentEl.createDiv("upload-results");
+    const resultsList = el.createDiv("upload-results");
 
-    this.results = selected.map((entry) => {
+    this.results = this.selectedFiles.map((file) => {
       const item = resultsList.createDiv("result-item");
       const statusEl = item.createSpan({ cls: "result-status pending", text: "Pending" });
       const infoEl = item.createDiv("result-info");
-      infoEl.createDiv({ cls: "result-file", text: entry.file.path });
-      const txIdEl = infoEl.createDiv({ cls: "result-txid", text: "" });
-
-      return {
-        file: entry.file,
-        status: "pending" as const,
-        statusEl,
-        txIdEl,
-      };
+      infoEl.createDiv({ cls: "result-file", text: file.name });
+      const detailEl = infoEl.createDiv({ cls: "result-txid" });
+      return { file, status: "pending" as const, statusEl, detailEl };
     });
 
-    const btnRow = contentEl.createDiv("modal-button-container");
+    const btnRow = el.createDiv("modal-button-container");
     const closeBtn = btnRow.createEl("button", { text: "Close" });
     closeBtn.disabled = true;
     closeBtn.addEventListener("click", () => this.close());
 
     this._summaryEl = summaryEl;
-    this._closeBtn = closeBtn;
+    this._progressCloseBtn = closeBtn;
   }
-
-  private _summaryEl: HTMLElement | null = null;
-  private _closeBtn: HTMLButtonElement | null = null;
 
   private async runUploads(): Promise<void> {
     const validTags = this.sessionTags.filter(
@@ -281,13 +289,10 @@ export class UploadModal extends Modal {
 
     let service: ArweaveService;
     try {
-      service = new ArweaveService(
-        this.settings.walletJwk,
-        this.settings.defaultGateway
-      );
-    } catch (e) {
+      service = new ArweaveService(this.settings.walletJwk, this.settings.defaultGateway);
+    } catch {
       new Notice("Failed to initialize Arweave client. Check your wallet JWK in settings.");
-      if (this._closeBtn) this._closeBtn.disabled = false;
+      if (this._progressCloseBtn) this._progressCloseBtn.disabled = false;
       return;
     }
 
@@ -301,47 +306,36 @@ export class UploadModal extends Modal {
       }
 
       try {
-        const data = await this.app.vault.readBinary(resultEntry.file);
-        const result = await service.uploadFile(
-          resultEntry.file.path,
-          data,
-          validTags
-        );
+        const buffer = await fsPromises.readFile(resultEntry.file.path);
+        const result = await service.uploadFile(resultEntry.file.path, buffer, validTags);
 
         resultEntry.status = "done";
-        resultEntry.txId = result.txId;
-        resultEntry.gatewayUrl = result.gatewayUrl;
-
         if (resultEntry.statusEl) {
           resultEntry.statusEl.className = "result-status done";
           resultEntry.statusEl.setText("Done");
         }
-        if (resultEntry.txIdEl) {
-          resultEntry.txIdEl.setText(result.txId);
-          resultEntry.txIdEl.title = result.gatewayUrl;
+        if (resultEntry.detailEl) {
+          resultEntry.detailEl.setText(result.txId);
+          resultEntry.detailEl.title = result.gatewayUrl;
         }
-
         this.uploadResults.push(result);
       } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
         resultEntry.status = "error";
-        resultEntry.error = message;
-
         if (resultEntry.statusEl) {
           resultEntry.statusEl.className = "result-status error";
           resultEntry.statusEl.setText("Error");
         }
-        if (resultEntry.txIdEl) {
-          resultEntry.txIdEl.className = "result-error";
-          resultEntry.txIdEl.setText(message);
+        if (resultEntry.detailEl) {
+          resultEntry.detailEl.className = "result-error";
+          resultEntry.detailEl.setText(message);
         }
-
         this.uploadResults.push({
           filePath: resultEntry.file.path,
           txId: "",
           gatewayUrl: "",
           contentType: "",
-          fileSize: resultEntry.file.stat.size,
+          fileSize: resultEntry.file.size,
           tags: validTags,
           uploadedAt: new Date().toISOString(),
           error: message,
@@ -350,9 +344,7 @@ export class UploadModal extends Modal {
 
       doneCount++;
       if (this._summaryEl) {
-        this._summaryEl.setText(
-          `${doneCount} / ${this.results.length} complete`
-        );
+        this._summaryEl.setText(`${doneCount} / ${this.results.length} complete`);
       }
     }
 
@@ -361,10 +353,7 @@ export class UploadModal extends Modal {
 
     if (successCount > 0) {
       try {
-        const indexManager = new IndexManager(
-          this.app.vault,
-          this.settings.indexFilePath
-        );
+        const indexManager = new IndexManager(this.app.vault, this.settings.indexFilePath);
         await indexManager.appendRecords(this.uploadResults);
         new Notice(
           `Meridian: ${successCount} file${successCount === 1 ? "" : "s"} uploaded and saved to index.`
@@ -382,19 +371,127 @@ export class UploadModal extends Modal {
     }
 
     if (this._summaryEl) {
-      this._summaryEl.setText(
-        `Complete: ${successCount} uploaded, ${errorCount} failed.`
-      );
+      this._summaryEl.setText(`Complete: ${successCount} uploaded, ${errorCount} failed.`);
     }
 
-    if (this._closeBtn) this._closeBtn.disabled = false;
+    if (this._progressCloseBtn) this._progressCloseBtn.disabled = false;
   }
-}
 
-function formatBytes(bytes: number): string {
-  if (bytes === 0) return "0 B";
-  const k = 1024;
-  const sizes = ["B", "KB", "MB", "GB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+  // ---------------------------------------------------------------------------
+  // Archive tab
+  // ---------------------------------------------------------------------------
+
+  private renderArchiveTab(): void {
+    const el = this.tabContentEl;
+
+    el.createEl("h2", { text: "Archive" });
+
+    const searchInput = el.createEl("input", {
+      type: "text",
+      placeholder: "Search by filename, transaction ID, or tag...",
+      cls: "meridian-search",
+    });
+
+    const countEl = el.createDiv({ cls: "meridian-archive-count" });
+    const listEl = el.createDiv("meridian-archive-list");
+
+    const indexManager = new IndexManager(this.app.vault, this.settings.indexFilePath);
+
+    const loadAndRender = async (filter: string): Promise<void> => {
+      listEl.empty();
+      const index = await indexManager.readIndex();
+      const query = filter.trim().toLowerCase();
+
+      const records = index.records.filter((r) => {
+        if (!query) return true;
+        if (r.filePath.toLowerCase().includes(query)) return true;
+        if (r.txId.toLowerCase().includes(query)) return true;
+        if (r.tags.some((t) =>
+          t.name.toLowerCase().includes(query) || t.value.toLowerCase().includes(query)
+        )) return true;
+        return false;
+      });
+
+      const total = index.records.length;
+      countEl.setText(
+        query
+          ? `${records.length} of ${total} record${total === 1 ? "" : "s"}`
+          : `${total} record${total === 1 ? "" : "s"}`
+      );
+
+      if (records.length === 0) {
+        listEl.createEl("p", {
+          cls: "meridian-empty",
+          text: query
+            ? "No records match your search."
+            : "No records in the archive yet. Upload files to get started.",
+        });
+        return;
+      }
+
+      const sorted = [...records].sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt));
+      for (const record of sorted) {
+        this.renderArchiveRecord(listEl, record, async () => {
+          const confirmed = confirm(
+            `Remove this record from the local index?\n\n"${record.filePath}"\n\nNote: the Arweave transaction (${record.txId.slice(0, 12)}...) is permanent and cannot be removed from the network.`
+          );
+          if (!confirmed) return;
+          await indexManager.deleteRecord(record.txId);
+          new Notice("Record removed from local index. The Arweave transaction remains permanent.");
+          loadAndRender(searchInput.value);
+        });
+      }
+    };
+
+    searchInput.addEventListener("input", () => loadAndRender(searchInput.value));
+    loadAndRender("");
+  }
+
+  private renderArchiveRecord(
+    container: HTMLElement,
+    record: ArchiveRecord,
+    onDelete: () => void
+  ): void {
+    const item = container.createDiv("meridian-archive-item");
+
+    const main = item.createDiv("meridian-archive-main");
+    main.createDiv({
+      cls: "meridian-archive-filename",
+      text: record.filePath.split(/[/\\]/).pop() ?? record.filePath,
+    });
+    main.createDiv({ cls: "meridian-archive-path", text: record.filePath });
+
+    const metaEl = main.createDiv({ cls: "meridian-archive-meta" });
+    metaEl.createSpan({ text: new Date(record.uploadedAt).toLocaleString() });
+    metaEl.createSpan({ cls: "meridian-meta-sep", text: " · " });
+    metaEl.createSpan({ text: formatBytes(record.fileSize) });
+    if (record.tags.length > 0) {
+      metaEl.createSpan({ cls: "meridian-meta-sep", text: " · " });
+      metaEl.createSpan({
+        text: `${record.tags.length} tag${record.tags.length === 1 ? "" : "s"}`,
+      });
+    }
+
+    const txEl = main.createDiv({ cls: "meridian-archive-txid", text: record.txId });
+    txEl.title = record.gatewayUrl;
+
+    const actions = item.createDiv("meridian-archive-actions");
+
+    const copyBtn = actions.createEl("button", { text: "Copy TX", cls: "meridian-action-btn" });
+    copyBtn.addEventListener("click", async () => {
+      await navigator.clipboard.writeText(record.txId);
+      new Notice("Transaction ID copied.");
+    });
+
+    const openBtn = actions.createEl("button", { text: "Open", cls: "meridian-action-btn" });
+    openBtn.addEventListener("click", () => {
+      window.open(record.gatewayUrl, "_blank");
+    });
+
+    const deleteBtn = actions.createEl("button", {
+      text: "Delete",
+      cls: "meridian-action-btn meridian-action-btn--danger",
+    });
+    deleteBtn.addEventListener("click", onDelete);
+  }
 }

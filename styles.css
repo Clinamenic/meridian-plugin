@@ -1,0 +1,338 @@
+/* ---------------------------------------------------------------------------
+   Tab bar
+--------------------------------------------------------------------------- */
+
+.meridian-modal .meridian-tab-bar {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  margin-bottom: 20px;
+}
+
+.meridian-modal .meridian-tab {
+  padding: 6px 16px;
+  font-size: var(--font-ui-small);
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  border-radius: var(--radius-s) var(--radius-s) 0 0;
+  user-select: none;
+}
+
+.meridian-modal .meridian-tab:hover {
+  color: var(--text-normal);
+  background-color: var(--background-modifier-hover);
+}
+
+.meridian-modal .meridian-tab.meridian-tab--active {
+  color: var(--text-accent);
+  border-bottom-color: var(--text-accent);
+}
+
+/* ---------------------------------------------------------------------------
+   Shared layout helpers
+--------------------------------------------------------------------------- */
+
+.meridian-modal .meridian-tab-content {
+  min-height: 300px;
+}
+
+.meridian-modal h2 {
+  margin: 0 0 4px;
+  font-size: var(--font-ui-medium);
+}
+
+.meridian-modal .meridian-subtitle {
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+  margin: 0 0 16px;
+}
+
+.meridian-modal .modal-button-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.meridian-modal .meridian-count-label {
+  flex: 1;
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
+}
+
+/* ---------------------------------------------------------------------------
+   Upload tab: file selection
+--------------------------------------------------------------------------- */
+
+.meridian-modal .meridian-browse-btn {
+  margin-bottom: 16px;
+}
+
+.meridian-modal .meridian-selected-files {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s);
+  margin-bottom: 4px;
+  overflow: hidden;
+}
+
+.meridian-modal .meridian-selected-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.meridian-modal .meridian-selected-item:last-child {
+  border-bottom: none;
+}
+
+.meridian-modal .meridian-selected-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.meridian-modal .meridian-selected-name {
+  font-size: var(--font-ui-small);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meridian-modal .meridian-selected-path {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meridian-modal .meridian-selected-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.meridian-modal .file-size {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.meridian-modal .meridian-remove-btn {
+  font-size: var(--font-ui-smaller);
+}
+
+/* ---------------------------------------------------------------------------
+   Upload tab: tag entry
+--------------------------------------------------------------------------- */
+
+.meridian-modal .tag-container {
+  margin-bottom: 10px;
+}
+
+.meridian-modal .tag-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.meridian-modal .tag-row input {
+  flex: 1;
+}
+
+.meridian-modal .tag-remove-btn {
+  flex-shrink: 0;
+}
+
+.meridian-modal .meridian-add-tag-btn {
+  margin-bottom: 4px;
+}
+
+/* ---------------------------------------------------------------------------
+   Upload tab: progress
+--------------------------------------------------------------------------- */
+
+.meridian-modal .summary-stats {
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.meridian-modal .upload-results {
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s);
+  padding: 8px;
+  margin-bottom: 12px;
+}
+
+.meridian-modal .result-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 2px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  font-size: var(--font-ui-small);
+}
+
+.meridian-modal .result-item:last-child {
+  border-bottom: none;
+}
+
+.meridian-modal .result-status {
+  flex-shrink: 0;
+  width: 80px;
+  font-weight: 600;
+}
+
+.meridian-modal .result-status.pending {
+  color: var(--text-muted);
+}
+
+.meridian-modal .result-status.uploading {
+  color: var(--color-yellow);
+}
+
+.meridian-modal .result-status.done {
+  color: var(--color-green);
+}
+
+.meridian-modal .result-status.error {
+  color: var(--color-red);
+}
+
+.meridian-modal .result-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.meridian-modal .result-file {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meridian-modal .result-txid {
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meridian-modal .result-error {
+  color: var(--color-red);
+  font-size: var(--font-ui-smaller);
+}
+
+/* ---------------------------------------------------------------------------
+   Archive tab
+--------------------------------------------------------------------------- */
+
+.meridian-modal .meridian-search {
+  width: 100%;
+  margin-bottom: 8px;
+  box-sizing: border-box;
+}
+
+.meridian-modal .meridian-archive-count {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.meridian-modal .meridian-archive-list {
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.meridian-modal .meridian-empty {
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+  text-align: center;
+  padding: 32px 0;
+}
+
+.meridian-modal .meridian-archive-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.meridian-modal .meridian-archive-item:last-child {
+  border-bottom: none;
+}
+
+.meridian-modal .meridian-archive-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.meridian-modal .meridian-archive-filename {
+  font-size: var(--font-ui-small);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meridian-modal .meridian-archive-path {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 2px;
+}
+
+.meridian-modal .meridian-archive-meta {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.meridian-modal .meridian-meta-sep {
+  color: var(--text-faint);
+}
+
+.meridian-modal .meridian-archive-txid {
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-smaller);
+  color: var(--text-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meridian-modal .meridian-archive-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.meridian-modal .meridian-action-btn {
+  font-size: var(--font-ui-smaller);
+  padding: 2px 8px;
+  min-width: 68px;
+}
+
+.meridian-modal .meridian-action-btn--danger {
+  color: var(--color-red);
+}
+
+.meridian-modal .meridian-action-btn--danger:hover {
+  background-color: var(--background-modifier-error);
+}

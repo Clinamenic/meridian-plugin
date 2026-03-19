@@ -54,11 +54,11 @@ export class ArweaveService {
 
   async uploadFile(
     filePath: string,
-    data: ArrayBuffer,
+    data: Uint8Array | ArrayBuffer,
     sessionTags: ArweaveTag[]
   ): Promise<UploadResult> {
     const contentType = inferContentType(filePath);
-    const uint8 = new Uint8Array(data);
+    const uint8 = data instanceof Uint8Array ? data : new Uint8Array(data);
 
     const tx = await this.arweave.createTransaction({ data: uint8 }, this.jwk);
 
