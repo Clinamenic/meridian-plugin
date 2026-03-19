@@ -1,0 +1,57 @@
+---
+description: Defines standards for creating AI-optimized implementation plans, ensuring clear context, unambiguous directives, and traceable dependencies.
+globs: .workspace/to-do/*.md, .workspace/archive/*.md
+---
+
+## Planning Workflow
+
+### Active Planning (`.workspace/to-do/`)
+
+Create implementation plans in `.workspace/to-do/` for features ready to be worked on.
+
+1. Intake: capture the user's request
+
+- Collect a concise feature description, goals, and constraints
+- Identify impacted areas (services, containers, configuration, network, storage)
+
+2. Codebase reconnaissance
+
+- Search for related modules, services, and configurations
+- Note existing interfaces and integration points that will be reused or extended
+- Record key files and their purposes
+
+3. Clarification questions (if needed)
+
+- Ask targeted questions to remove ambiguity about scope, UX, data, and edge cases
+- Block further steps until answers are provided
+
+4. Synthesize answers and finalize scope
+
+- Incorporate user responses
+- Decide on approach, dependencies, and trade-offs
+
+5. Write planning doc in `.workspace/to-do/`
+
+- File name: `YYYY-MM-DD-feature-slug.md`
+- Include sections from the framework:
+  - Baseline Knowledge (interfaces, dependencies, required file modifications)
+  - Type Definitions (new, extended, validation)
+  - Implementation Order (dependency chain, critical path)
+  - Integration Points (APIs, events, error handling)
+  - Success Criteria (functionality, performance, reliability)
+  - Risk & Rollback (briefly)
+
+6. Review readiness
+
+- Confirm the plan is testable, traceable to requirements, and has explicit dependencies
+- If critical unknowns remain, loop back to step 3 with new questions
+
+7. Proceed to implementation
+
+- Use the plan as the source of truth for edits and implementation steps
+
+8. Archive completed plans
+
+- After successful implementation and verification, move plan to `.workspace/archive/`
+- Maintains historical record of implementation decisions
+- Keeps active to-do folder focused on pending work

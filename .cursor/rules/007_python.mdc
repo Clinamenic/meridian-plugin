@@ -1,0 +1,14 @@
+---
+description: Defines standards for virtual environment usage, dependency management, and script execution across development environments.
+globs: .venv/**/*, requirements.txt, package.json, poetry.lock
+---
+## Standards
+1. Environment
+- Python 3.8+
+- Virtual environment
+- Requirements.txt
+
+2. Dependencies
+- Explicit versions
+- Minimal dependencies
+- Platform compatibility

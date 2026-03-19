@@ -1,0 +1,54 @@
+---
+description: 
+globs: .cursor/tools/pipet/**/*.pipet,.cursor/tools/search_engine.py
+alwaysApply: false
+---
+## Research Framework
+
+1. Information Gathering
+- Targeted search strategies
+- Web scraping with Pipet
+- Source validation
+- Data synthesis
+
+2. Tool Integration
+- Search engine utilization
+- Pipet configuration (.pipet files)
+- Result processing
+- Information caching
+
+3. Research: Multi-mode web scraping, JavaScript)
+  - HTML mode: CSS selectors for DOM parsing
+  - JSON mode: Path-based extraction from API responses
+  - JavaScript mode: Browser automation via Playwright
+- @search_engine.py: Search engine tool
+
+4. Pipet Usage Patterns
+- Create .pipet files for common research tasks
+- Use templating for structured data extraction
+- Schedule recurring checks with interval flag
+- Pipe results to other tools for processing
+
+5. AI Assistant Usage Guide
+- Basic command: `pipet <path/to/file.pipet>`
+- JSON output: `pipet --json <file.pipet>`
+- Custom separators: `pipet -s " | " <file.pipet>` 
+- Monitor for changes: `pipet --interval 60 <file.pipet>`
+- Creating quick .pipet files:
+  ```
+  // HTML scraping example
+  curl https://example.com
+  .main-content h1
+  .article p
+  
+  // JSON API example
+  curl https://api.example.com/data.json
+  results.0.title
+  results.0.description
+  
+  // JavaScript evaluation
+  playwright https://dynamic-site.com
+  Array.from(document.querySelectorAll('.results')).map(e => e.textContent)
+  ```
+- Execute and parse results for user research requests
+- Store common patterns in .cursor/tools/pipet/

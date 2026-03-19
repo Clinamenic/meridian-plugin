@@ -1,0 +1,23 @@
+---
+description: Defines standards for AI delegation and API integration, establishing patterns for effective use of AI subassistants and external services.
+globs: .cursor/tools/**/*.py, src/**/*.ts
+---
+## Delegation Framework
+
+1. Core Principles
+- Clear delegation boundaries and responsibilities
+- Consistent API integration patterns
+- Secure credential management
+- Robust error handling and recovery
+
+2. Delegation Patterns
+- Primary/Secondary AI coordination
+- API service integration
+- Context preservation
+- State synchronization
+
+3. Best Practices
+- Maintain clear delegation chain
+- Implement secure API patterns
+- Document integration points
+- Monitor delegate performance

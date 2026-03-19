@@ -1,0 +1,90 @@
+---
+description: Defines standards for debug logging across the application, ensuring consistent log labeling, routing, and analysis capabilities.
+globs: src/**/*.ts, backend/**/*.py, .cursor/tools/app-debug/**/*
+---
+## Debug Framework
+
+[run.sh](mdc:.cursor/tools/app-debug/run.sh) is the primary development run script, which creates a directory of specified logs for debugging and diagnosis purposes.
+
+1. Log Source Labeling
+   ```typescript
+   // Component-Module-Function Pattern
+   [COMPONENT:MODULE:FUNCTION]      // Function-level logs
+   [COMPONENT:MODULE:CLASS#METHOD]  // Class method logs
+   [COMPONENT:MODULE]              // Module-level logs
+```
+
+Component Categories:
+
+- Frontend Core: EventSystem, HistorySystem, FontOperations, etc.
+- Frontend Modules: Canvas, Gallery, Toolbar, etc.
+- Process: Main, Renderer, Preload
+- Bridge: PythonBridge, IpcHandlers
+- Backend: FontProcessor, BuildPipeline, etc.
+
+2. Log Message Structure
+
+   ```typescript
+   [TIMESTAMP] [SOURCE_LABEL] [LEVEL] [CONTEXT] Message {data}
+   ```
+
+   - Timestamp: ISO 8601 UTC format with milliseconds
+   - Source Label: Component-Module-Function pattern
+   - Level: ERROR, WARN, INFO, DEBUG, TRACE
+   - Context: Operation-specific context (e.g., "Initialization", "FileUpdate")
+   - Message: Clear, descriptive content
+   - Data: Optional structured JSON data
+
+3. Component Logger Usage
+
+   ```typescript
+   // TypeScript
+   private logger = Logger.forComponent('Canvas', Module.MODULES);
+   logger.info('Message', 'Canvas#updatePath', {
+     operation: 'PathUpdate',
+     data: { pathId: 123 }
+   });
+
+   # Python
+   logger = ComponentLogger('BuildPipeline', Module.BACKEND)
+   logger.info('Message', 'BuildPipeline#build_all',
+               operation='BuildStart',
+               data={'styles': ['Regular']})
+   ```
+
+4. Log Routing
+
+   - Renderer Process: Logs sent via IPC to main process
+   - Main Process: Direct stdout/stderr writing
+   - Backend: Python logger with stream handlers
+   - All logs captured by run.sh and routed to:
+     - full.log: Complete system log
+     - frontend/core/: Core system logs
+     - frontend/modules/: UI module logs
+     - frontend/process/: Process-specific logs
+     - backend/core/: Backend system logs
+     - backend/bridge/: Bridge communication logs
+     - errors.log: ERROR level logs by component
+
+5. Development Features
+
+   - Color-coded by module in console
+   - Real-time log routing
+   - Session preservation (--preserve flag)
+   - Log refresh detection (--refresh-logs flag)
+   - Automatic ANSI code stripping
+   - Unmatched log capture
+
+6. Best Practices
+   - Use ComponentLogger for consistent labeling
+   - Include operation context for all logs
+   - Add structured data for analysis
+   - Use appropriate log levels:
+     - ERROR: Critical issues requiring immediate attention
+     - WARN: Potential issues or unexpected behavior
+     - INFO: General operational information
+     - DEBUG: Detailed information for debugging
+     - TRACE: Very detailed information for deep debugging
+   - Handle errors appropriately in log calls
+   - Clean up logger resources when components are destroyed
+   - Maintain performance through level-appropriate logging

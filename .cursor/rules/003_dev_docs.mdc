@@ -1,0 +1,27 @@
+---
+description: Organization of development documentation as part of the workspace scaffolding.
+globs: .cursor/docs/**/*
+---
+
+## Documentation Framework
+
+1. Purpose
+
+   - Support development process
+   - Document patterns and decisions
+   - Guide without constraining
+   - Enable knowledge sharing
+
+2. Organization
+
+   - .workspace/docs/ref/: External references and standards
+   - .workspace/docs/temp/: Work in progress documentation
+   - .workspace/docs/arch/: Architecture and design docs
+   - Project docs live in `.workspace/docs/` (assistant-agnostic)
+   - Assistant-specific rule docs remain in their own directories (e.g., `.cursor/`, `.claude/`)
+
+3. Best Practices
+   - Centralize shared project docs in `.workspace/docs/`
+   - Keep assistant-specific guidance in their respective directories (`.cursor/`, `.claude/`)
+   - Use clear cross-references between `.workspace/docs/` and assistant-specific rules
+   - Maintain docs regularly and keep them assistant-agnostic by default

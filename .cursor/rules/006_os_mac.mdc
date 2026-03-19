@@ -1,0 +1,20 @@
+---
+description: macOS-specific development configurations and requirements.
+globs: .cursor/tools/**/*.sh, package.json
+---
+## Configuration
+
+1. Environment Setup
+    - XCode tools
+    - Homebrew packages
+    - Python environment
+
+2. Font Tools
+- FontTools suite
+- UFO support
+- Build tools
+
+3. Development
+- VS Code settings
+- Terminal config
+- Git setup

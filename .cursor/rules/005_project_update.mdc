@@ -1,0 +1,168 @@
+---
+description: Comprehensive git workflow and semantic versioning strategy with automated version determination based on conventional commits.
+globs:
+alwaysApply: false
+---
+
+## Integrated Git + SemVer Strategy
+
+1. Commit-to-Version Mapping (per Conventional Commits)
+
+- fix: → PATCH (0.0.X) - Bug fixes
+- feat: → MINOR (0.X.0) - New features
+- BREAKING CHANGE or !: → MAJOR (X.0.0) - Breaking changes
+- docs/style/refactor/test/chore: → PATCH - Non-breaking changes
+
+2. Analysis Workflow
+
+- Analyze commits since last version tag
+- Determine highest version impact (MAJOR > MINOR > PATCH)
+- Generate version bump recommendation
+- Update package.json and related files
+
+3. Complete Process (single-source order of operations)
+
+- git status → analyze changes → determine version type
+- Run `.workspace/scripts/version-bump.sh` with the selected bump
+- Update architecture docs in `.workspace/docs/` to reflect the release
+- Optionally run `npm install` to refresh `package-lock.json`
+- Generate conventional commit message and commit bump/docs changes (Commit A)
+- Capture commit metadata for Commit A (short SHA and ISO8601 date)
+- Update `CHANGELOG.md` for the new version, referencing Commit A
+- Commit changelog update (Commit B)
+- Tag the release at Commit B → push with tags
+
+4. Implementation Steps for AI Assistant (execute in this order)
+   a) Change Analysis: git status, git diff --stat, examine key files
+   b) Impact Assessment: Categorize changes (breaking/feature/fix/maintenance)
+   c) Version Decision: Apply highest impact rule (MAJOR > MINOR > PATCH)
+   d) Version Management: Run .workspace/scripts/version-bump.sh [patch|minor|major]
+   e) Architecture Docs: Update `.workspace/docs/*.md` for the new version
+   f) Optional: npm install (update package-lock.json)
+   g) Commit A: Conventional commit for bump + docs updates
+   h) Capture metadata: `BUMP_SHA=$(git rev-parse --short HEAD)`, `BUMP_DATE=$(git show -s --format=%cI HEAD)`
+   i) Documentation: Update CHANGELOG.md referencing `BUMP_SHA` and using `BUMP_DATE`
+   j) Commit B & Release: Commit changelog → tag vX.Y.Z → push with tags
+
+## Commit Process
+
+1. Analysis Phase
+
+- Check git status and diff statistics
+- Examine key file changes for context
+- Identify new files and their purpose
+- Categorize changes by type and scope
+
+2. Message Format
+
+- Use conventional commits: type(scope): description
+- Types: feat, fix, docs, style, refactor, test, chore
+- Include comprehensive body for major changes
+- List key features and improvements
+
+3. Workflow Steps (post-bump)
+
+- After bump + docs updates: generate descriptive commit message
+- git add . → git commit -m "message" → git tag vX.Y.Z → git push && git push --tags
+
+## Using the version bump script
+
+This workspace provides a script to perform consistent SemVer bumps and keep project metadata in sync.
+
+- Script path: `.workspace/scripts/version-bump.sh`
+- Usage: `.workspace/scripts/version-bump.sh patch|minor|major`
+
+What the script does:
+
+- Reads current version from `package.json`
+- Runs `npm version <type> --no-git-tag-version` to update `package.json`
+- Updates the app display version in `src/renderer/index.html` (replaces the `<strong>Version:</strong> X.Y.Z` string)
+- Prints suggested next steps for updating `CHANGELOG.md`, committing, tagging, and pushing
+
+Pre-conditions:
+
+- Working tree should be clean or only contain changes you intend to include in the release
+- Decide the bump type based on commits since the last tag:
+  - `major`: if any commit includes `BREAKING CHANGE:` or `!` after the type
+  - `minor`: if there is at least one `feat:` and no breaking changes
+  - `patch`: for `fix:` and other non-breaking changes (docs/style/refactor/test/chore)
+
+Recommended flow:
+
+1. Analyze changes and select the bump type
+2. Run the script: `.workspace/scripts/version-bump.sh patch|minor|major`
+3. Update architecture docs in `.workspace/docs/` (see guidance below)
+4. Optionally run `npm install` to refresh `package-lock.json`
+5. Commit A: bump + docs
+6. Capture metadata for Commit A (see below)
+7. Update `CHANGELOG.md` with the new release entry referencing Commit A
+8. Commit B: changelog
+9. Tag vX.Y.Z and push with tags
+
+Example commands after running the script (assuming version X.Y.Z):
+
+```sh
+# Commit A: bump + docs
+git add .
+git commit -m "chore(release): bump version to X.Y.Z"
+
+# Capture reliable metadata from Commit A
+BUMP_SHA=$(git rev-parse --short HEAD)
+BUMP_DATE=$(git show -s --format=%cI HEAD)  # ISO 8601 commit date
+
+# Update CHANGELOG.md with X.Y.Z entry including $BUMP_SHA and $BUMP_DATE
+# (assistant edits the file accordingly)
+
+# Commit B: changelog entry
+git add CHANGELOG.md
+git commit -m "docs(changelog): release X.Y.Z (refs $BUMP_SHA)"
+
+# Tag release at Commit B and push
+git tag vX.Y.Z
+git push && git push --tags
+```
+
+## CHANGELOG.md format and update guidance
+
+Maintain a human-readable changelog with one section per release. Suggested style (Keep a Changelog-inspired):
+
+Heading format:
+
+```
+## X.Y.Z - YYYY-MM-DD
+```
+
+Recommended subsections (include only those that apply):
+
+- Added
+- Changed
+- Fixed
+- Removed
+- Security
+
+Example entry:
+
+```
+## 0.2.0 - 2025-08-10
+
+### Added
+- feat(app): introduce preferences panel for offline sync
+
+### Fixed
+- fix(sync): resolve retry backoff bug when network is flaky
+```
+
+Notes:
+
+- The version number in the heading must match `package.json` after the bump script runs
+- Keep entries aligned with Conventional Commit types; summarize user-visible impact
+- For breaking changes, add a clear "Breaking" note under the version with migration guidance
+
+## Architecture docs update guidance
+
+Update `.workspace/docs/*.md` to reflect notable architectural changes in the release:
+
+- Add or update a top section for `X.Y.Z - YYYY-MM-DD` summarizing impacted components
+- Capture changes in data flow, boundaries, storage, sync, security, or APIs
+- Link to relevant PRs or commits when helpful
+- Keep docs assistant-agnostic; tooling-specific notes belong in assistant directories

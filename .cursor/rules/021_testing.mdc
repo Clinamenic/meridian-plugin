@@ -1,0 +1,19 @@
+---
+description: Testing standards and requirements for font development tools.
+globs: src/test/**/*.ts, backend/**/*test*.py, jest.config.js
+---
+## Testing Standards
+1. Unit Tests
+- Core libraries
+- Component isolation
+- Coverage requirements
+
+2. Integration Tests
+- Editor functionality
+- CLI operations
+- Font generation
+
+3. Performance Tests
+- Benchmarking
+- Resource usage
+- Cross-platform

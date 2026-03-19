@@ -1,0 +1,25 @@
+---
+description: Development tool management and configuration as part of workspace scaffolding.
+globs: .cursor/tools/**/*
+---
+
+## Tool Framework
+
+1. Purpose
+
+   - Support development workflow
+   - Provide utility scripts
+   - Configure development tools
+   - Enable project tooling
+
+2. Organization
+
+   - .workspace/scripts/: Development automation (assistant-agnostic)
+   - .workspace/config/: Tool configurations shared across assistants
+   - Assistant-specific tools/config remain in their directories (e.g., `.cursor/`, `.claude/`)
+
+3. Best Practices
+   - Put shared project scripts in `.workspace/scripts/` and configs in `.workspace/config/`
+   - Keep assistant-specific rules/configuration in their respective directories
+   - Document tool usage in `.workspace/docs/` and reference from assistant-specific docs
+   - Maintain independence between shared scripts and assistant-specific layers
