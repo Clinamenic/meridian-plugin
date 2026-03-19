@@ -2,4 +2,7 @@ node_modules/
 main.js
 *.js.map
 .obsidian/
-styles.css
+.DS_Store
+.cursor/
+.workspace/
+*.plan.md
