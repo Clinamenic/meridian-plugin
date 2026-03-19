@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as fsPromises from "fs/promises";
-import { App, Modal, Notice } from "obsidian";
+import { App, Modal, Notice, setIcon } from "obsidian";
 import { ArweaveService } from "./arweave-service";
 import { IndexManager } from "./index-manager";
 import type { ArchiveRecord, ArweaveTag, PluginSettings, UploadResult } from "./types";
@@ -452,46 +452,50 @@ export class UploadModal extends Modal {
     record: ArchiveRecord,
     onDelete: () => void
   ): void {
+    const filename = record.filePath.split(/[/\\]/).pop() ?? record.filePath;
+    const shortTxId = record.txId.slice(0, 12) + "...";
+    const date = new Date(record.uploadedAt).toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+
+    const tagSummary =
+      record.tags.length > 0
+        ? "\n\nTags:\n" +
+          record.tags.map((t) => `  ${t.name}: ${t.value}`).join("\n")
+        : "";
+
     const item = container.createDiv("meridian-archive-item");
 
-    const main = item.createDiv("meridian-archive-main");
-    main.createDiv({
-      cls: "meridian-archive-filename",
-      text: record.filePath.split(/[/\\]/).pop() ?? record.filePath,
-    });
-    main.createDiv({ cls: "meridian-archive-path", text: record.filePath });
+    const nameEl = item.createDiv({ cls: "meridian-col meridian-col-name", text: filename });
+    nameEl.title = record.filePath + tagSummary;
 
-    const metaEl = main.createDiv({ cls: "meridian-archive-meta" });
-    metaEl.createSpan({ text: new Date(record.uploadedAt).toLocaleString() });
-    metaEl.createSpan({ cls: "meridian-meta-sep", text: " · " });
-    metaEl.createSpan({ text: formatBytes(record.fileSize) });
-    if (record.tags.length > 0) {
-      metaEl.createSpan({ cls: "meridian-meta-sep", text: " · " });
-      metaEl.createSpan({
-        text: `${record.tags.length} tag${record.tags.length === 1 ? "" : "s"}`,
-      });
-    }
+    const txEl = item.createDiv({ cls: "meridian-col meridian-col-txid", text: shortTxId });
+    txEl.title = record.txId;
 
-    const txEl = main.createDiv({ cls: "meridian-archive-txid", text: record.txId });
-    txEl.title = record.gatewayUrl;
+    item.createDiv({ cls: "meridian-col meridian-col-date", text: date });
 
     const actions = item.createDiv("meridian-archive-actions");
 
-    const copyBtn = actions.createEl("button", { text: "Copy TX", cls: "meridian-action-btn" });
+    const copyBtn = actions.createEl("button", { cls: "meridian-icon-btn", title: "Copy transaction ID" });
+    setIcon(copyBtn, "copy");
     copyBtn.addEventListener("click", async () => {
       await navigator.clipboard.writeText(record.txId);
       new Notice("Transaction ID copied.");
     });
 
-    const openBtn = actions.createEl("button", { text: "Open", cls: "meridian-action-btn" });
+    const openBtn = actions.createEl("button", { cls: "meridian-icon-btn", title: "Open in Arweave gateway" });
+    setIcon(openBtn, "external-link");
     openBtn.addEventListener("click", () => {
       window.open(record.gatewayUrl, "_blank");
     });
 
     const deleteBtn = actions.createEl("button", {
-      text: "Delete",
-      cls: "meridian-action-btn meridian-action-btn--danger",
+      cls: "meridian-icon-btn meridian-icon-btn--danger",
+      title: "Remove from local index",
     });
+    setIcon(deleteBtn, "trash-2");
     deleteBtn.addEventListener("click", onDelete);
   }
 }

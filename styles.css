@@ -248,11 +248,11 @@
 .meridian-modal .meridian-archive-count {
   font-size: var(--font-ui-smaller);
   color: var(--text-muted);
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .meridian-modal .meridian-archive-list {
-  max-height: 380px;
+  max-height: 400px;
   overflow-y: auto;
 }
 
@@ -263,76 +263,88 @@
   padding: 32px 0;
 }
 
+/* Single-row record */
 .meridian-modal .meridian-archive-item {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
-  padding: 10px 4px;
+  padding: 5px 4px;
   border-bottom: 1px solid var(--background-modifier-border);
+  min-width: 0;
 }
 
 .meridian-modal .meridian-archive-item:last-child {
   border-bottom: none;
 }
 
-.meridian-modal .meridian-archive-main {
-  flex: 1;
-  min-width: 0;
-}
-
-.meridian-modal .meridian-archive-filename {
+/* Shared column base */
+.meridian-modal .meridian-col {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: var(--font-ui-small);
-  font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.meridian-modal .meridian-archive-path {
-  font-size: var(--font-ui-smaller);
-  color: var(--text-faint);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  margin-bottom: 2px;
-}
-
-.meridian-modal .meridian-archive-meta {
-  font-size: var(--font-ui-smaller);
-  color: var(--text-muted);
-  margin-bottom: 4px;
-}
-
-.meridian-modal .meridian-meta-sep {
-  color: var(--text-faint);
-}
-
-.meridian-modal .meridian-archive-txid {
-  font-family: var(--font-monospace);
-  font-size: var(--font-ui-smaller);
-  color: var(--text-faint);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.meridian-modal .meridian-archive-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
   flex-shrink: 0;
 }
 
-.meridian-modal .meridian-action-btn {
+/* Filename: grows to fill available space */
+.meridian-modal .meridian-col-name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 500;
+  cursor: default;
+}
+
+/* TX ID: fixed width, monospace */
+.meridian-modal .meridian-col-txid {
+  width: 110px;
+  font-family: var(--font-monospace);
   font-size: var(--font-ui-smaller);
-  padding: 2px 8px;
-  min-width: 68px;
+  color: var(--text-muted);
+  cursor: default;
 }
 
-.meridian-modal .meridian-action-btn--danger {
+/* Date: fixed width */
+.meridian-modal .meridian-col-date {
+  width: 100px;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  text-align: right;
+}
+
+/* Icon button group */
+.meridian-modal .meridian-archive-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.meridian-modal .meridian-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.meridian-modal .meridian-icon-btn:hover {
+  color: var(--text-normal);
+  background-color: var(--background-modifier-hover);
+}
+
+.meridian-modal .meridian-icon-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.meridian-modal .meridian-icon-btn--danger:hover {
   color: var(--color-red);
-}
-
-.meridian-modal .meridian-action-btn--danger:hover {
   background-color: var(--background-modifier-error);
 }
