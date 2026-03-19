@@ -336,7 +336,7 @@ export class UploadModal extends Modal {
           gatewayUrl: "",
           contentType: "",
           fileSize: resultEntry.file.size,
-          tags: validTags,
+          tags: validTags.map((t): [string, string] => [t.name, t.value]),
           uploadedAt: new Date().toISOString(),
           error: message,
         });
@@ -407,7 +407,7 @@ export class UploadModal extends Modal {
         if (r.filePath.toLowerCase().includes(query)) return true;
         if (r.txId.toLowerCase().includes(query)) return true;
         if (r.tags.some((t) =>
-          t.name.toLowerCase().includes(query) || t.value.toLowerCase().includes(query)
+          t[0].toLowerCase().includes(query) || t[1].toLowerCase().includes(query)
         )) return true;
         return false;
       });
@@ -463,7 +463,7 @@ export class UploadModal extends Modal {
     const tagSummary =
       record.tags.length > 0
         ? "\n\nTags:\n" +
-          record.tags.map((t) => `  ${t.name}: ${t.value}`).join("\n")
+          record.tags.map((t) => `  ${t[0]}: ${t[1]}`).join("\n")
         : "";
 
     const item = container.createDiv("meridian-archive-item");

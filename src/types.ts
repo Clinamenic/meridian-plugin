@@ -9,7 +9,7 @@ export interface UploadResult {
   gatewayUrl: string;
   contentType: string;
   fileSize: number;
-  tags: ArweaveTag[];
+  tags: [string, string][];
   uploadedAt: string;
   error?: string;
 }
@@ -20,7 +20,7 @@ export interface ArchiveRecord {
   gatewayUrl: string;
   contentType: string;
   fileSize: number;
-  tags: ArweaveTag[];
+  tags: [string, string][];
   uploadedAt: string;
 }
 

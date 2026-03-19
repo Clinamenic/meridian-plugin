@@ -77,9 +77,9 @@ export class ArweaveService {
       );
     }
 
-    const allTags: ArweaveTag[] = [
-      { name: "Content-Type", value: contentType },
-      ...sessionTags,
+    const allTags: [string, string][] = [
+      ["Content-Type", contentType],
+      ...sessionTags.map((t): [string, string] => [t.name, t.value]),
     ];
 
     return {
