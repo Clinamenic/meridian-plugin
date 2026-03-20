@@ -141,6 +141,7 @@ export class UploadModal extends Modal {
   // ---------------------------------------------------------------------------
 
   private renderUploadTab(): void {
+    this.tabContentEl.empty();
     if (this.uploadPhase === "select") this.buildSelectPhase();
     else if (this.uploadPhase === "tags") this.buildTagsPhase();
     else this.buildProgressPhase();
