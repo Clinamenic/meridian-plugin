@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.6.1 - 2026-03-19
+
+Commit: 5536f7c (2026-03-19T23:22:34-07:00)
+
+### Added
+
+- feat(archive): editable document labels — pencil icon button on each archive row opens an inline input; Enter or blur saves, Escape cancels; stored as optional `label` field on `DocumentRecord`
+
+### Fixed
+
+- fix(archive): delete button hover now uses a solid red background with white icon, replacing the previous red-on-red combination where icon and background blended together
+
 ## 0.6.0 - 2026-03-19
 
 Commit: f849b12 (2026-03-19T19:20:40-07:00)
