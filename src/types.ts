@@ -3,6 +3,26 @@ export interface ArweaveTag {
   value: string;
 }
 
+export interface VersionRecord {
+  txId: string;
+  gatewayUrl: string;
+  contentType: string;
+  fileSize: number;
+  tags: [string, string][];
+  uploadedAt: string;
+}
+
+export interface DocumentRecord {
+  uuid: string;
+  filePath: string;
+  versions: VersionRecord[];
+}
+
+export interface ArchiveIndex {
+  version: number;
+  documents: DocumentRecord[];
+}
+
 export interface UploadResult {
   filePath: string;
   txId: string;
@@ -11,22 +31,6 @@ export interface UploadResult {
   fileSize: number;
   tags: [string, string][];
   uploadedAt: string;
-  error?: string;
-}
-
-export interface ArchiveRecord {
-  filePath: string;
-  txId: string;
-  gatewayUrl: string;
-  contentType: string;
-  fileSize: number;
-  tags: [string, string][];
-  uploadedAt: string;
-}
-
-export interface ArchiveIndex {
-  version: number;
-  records: ArchiveRecord[];
 }
 
 export interface IndexEntry {

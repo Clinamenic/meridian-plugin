@@ -289,18 +289,74 @@
   padding: 32px 0;
 }
 
-/* Single-row record */
-.meridian-modal .meridian-archive-item {
+/* Document header row */
+.meridian-modal .meridian-doc-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   padding: 5px 4px;
   border-bottom: 1px solid var(--background-modifier-border);
   min-width: 0;
 }
 
-.meridian-modal .meridian-archive-item:last-child {
+/* Versions container — hidden until expanded */
+.meridian-modal .meridian-doc-versions {
+  background-color: var(--background-secondary);
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+/* Version sub-row */
+.meridian-modal .meridian-version-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 4px 4px 36px;
+  border-bottom: 1px solid var(--background-modifier-border-hover);
+}
+
+.meridian-modal .meridian-version-row:last-child {
   border-bottom: none;
+}
+
+/* Version number label (v1, v2, ...) */
+.meridian-modal .meridian-version-num {
+  width: 24px;
+  font-size: var(--font-ui-smaller);
+  font-weight: 600;
+  color: var(--text-faint);
+  flex-shrink: 0;
+}
+
+/* Chevron expand button */
+.meridian-modal .meridian-chevron-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-s);
+  box-shadow: none;
+}
+
+.meridian-modal .meridian-chevron-btn:hover {
+  background-color: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.meridian-modal .meridian-chevron-btn svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.15s ease;
+}
+
+.meridian-modal .meridian-chevron-btn.meridian-chevron--expanded svg {
+  transform: rotate(90deg);
 }
 
 /* Shared column base */
@@ -317,7 +373,22 @@
   flex: 1;
   min-width: 0;
   font-weight: 500;
-  cursor: default;
+}
+
+/* UUID: fixed width, monospace, faint */
+.meridian-modal .meridian-col-uuid {
+  width: 80px;
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-smaller);
+  color: var(--text-faint);
+}
+
+/* Version count badge */
+.meridian-modal .meridian-col-versions {
+  width: 28px;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  text-align: center;
 }
 
 /* TX ID: fixed width, monospace */
@@ -326,7 +397,6 @@
   font-family: var(--font-monospace);
   font-size: var(--font-ui-smaller);
   color: var(--text-muted);
-  cursor: default;
 }
 
 /* Date: fixed width */
