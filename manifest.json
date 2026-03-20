@@ -1,7 +1,7 @@
 {
   "id": "meridian",
   "name": "Meridian",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "minAppVersion": "1.0.0",
   "description": "Upload vault files to Arweave and track their transaction IDs in a local archive index.",
   "author": "Clinamenic",

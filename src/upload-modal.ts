@@ -3,7 +3,7 @@ import * as fsPromises from "fs/promises";
 import { App, Modal, Notice, setIcon } from "obsidian";
 import { ArweaveService } from "./arweave-service";
 import { IndexManager } from "./index-manager";
-import type { ArchiveRecord, ArweaveTag, PluginSettings, UploadResult } from "./types";
+import type { ArchiveRecord, ArweaveTag, IndexEntry, PluginSettings, UploadResult } from "./types";
 
 type UploadPhase = "select" | "tags" | "progress";
 type ActiveTab = "upload" | "archive";
@@ -55,6 +55,7 @@ function formatBytes(bytes: number): string {
 
 export class UploadModal extends Modal {
   private settings: PluginSettings;
+  private saveSettings: () => Promise<void>;
   private activeTab: ActiveTab = "upload";
   private uploadPhase: UploadPhase = "select";
   private selectedFiles: FsFile[] = [];
@@ -62,21 +63,40 @@ export class UploadModal extends Modal {
   private results: ResultEntry[] = [];
   private uploadResults: UploadResult[] = [];
 
+  private indexSelectorEl!: HTMLSelectElement;
   private tabContentEl!: HTMLElement;
   private uploadTabBtn!: HTMLElement;
   private archiveTabBtn!: HTMLElement;
   private _summaryEl: HTMLElement | null = null;
   private _progressCloseBtn: HTMLButtonElement | null = null;
 
-  constructor(app: App, settings: PluginSettings) {
+  constructor(app: App, settings: PluginSettings, saveSettings: () => Promise<void>) {
     super(app);
     this.settings = settings;
+    this.saveSettings = saveSettings;
     this.modalEl.addClass("meridian-modal");
+  }
+
+  private getActiveIndex(): IndexEntry {
+    const { indexes, activeIndexId } = this.settings;
+    return indexes.find((e) => e.id === activeIndexId) ?? indexes[0];
   }
 
   onOpen(): void {
     const { contentEl } = this;
 
+    // Index selector bar
+    const selectorBar = contentEl.createDiv("meridian-index-bar");
+    selectorBar.createSpan({ cls: "meridian-index-label", text: "Index" });
+    this.indexSelectorEl = selectorBar.createEl("select", { cls: "meridian-index-select" });
+    this.rebuildIndexSelector();
+    this.indexSelectorEl.addEventListener("change", async () => {
+      this.settings.activeIndexId = this.indexSelectorEl.value;
+      await this.saveSettings();
+      if (this.activeTab === "archive") this.renderActiveTab();
+    });
+
+    // Tab bar
     const tabBar = contentEl.createDiv("meridian-tab-bar");
     this.uploadTabBtn = tabBar.createDiv({ cls: "meridian-tab meridian-tab--active", text: "Upload" });
     this.archiveTabBtn = tabBar.createDiv({ cls: "meridian-tab", text: "Archive" });
@@ -87,6 +107,15 @@ export class UploadModal extends Modal {
     this.archiveTabBtn.addEventListener("click", () => this.switchTab("archive"));
 
     this.renderActiveTab();
+  }
+
+  private rebuildIndexSelector(): void {
+    this.indexSelectorEl.empty();
+    for (const entry of this.settings.indexes) {
+      const option = this.indexSelectorEl.createEl("option", { text: entry.name || entry.filePath });
+      option.value = entry.id;
+      if (entry.id === this.settings.activeIndexId) option.selected = true;
+    }
   }
 
   onClose(): void {
@@ -256,6 +285,7 @@ export class UploadModal extends Modal {
 
   private buildProgressPhase(): void {
     const el = this.tabContentEl;
+    this.indexSelectorEl.disabled = true;
 
     el.createEl("h2", { text: "Uploading to Arweave" });
 
@@ -353,7 +383,7 @@ export class UploadModal extends Modal {
 
     if (successCount > 0) {
       try {
-        const indexManager = new IndexManager(this.app.vault, this.settings.indexFilePath);
+        const indexManager = new IndexManager(this.app.vault, this.getActiveIndex().filePath);
         await indexManager.appendRecords(this.uploadResults);
         new Notice(
           `Meridian: ${successCount} file${successCount === 1 ? "" : "s"} uploaded and saved to index.`
@@ -375,6 +405,7 @@ export class UploadModal extends Modal {
     }
 
     if (this._progressCloseBtn) this._progressCloseBtn.disabled = false;
+    this.indexSelectorEl.disabled = false;
   }
 
   // ---------------------------------------------------------------------------
@@ -395,7 +426,7 @@ export class UploadModal extends Modal {
     const countEl = el.createDiv({ cls: "meridian-archive-count" });
     const listEl = el.createDiv("meridian-archive-list");
 
-    const indexManager = new IndexManager(this.app.vault, this.settings.indexFilePath);
+    const indexManager = new IndexManager(this.app.vault, this.getActiveIndex().filePath);
 
     const loadAndRender = async (filter: string): Promise<void> => {
       listEl.empty();

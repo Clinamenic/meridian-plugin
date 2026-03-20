@@ -29,9 +29,16 @@ export interface ArchiveIndex {
   records: ArchiveRecord[];
 }
 
+export interface IndexEntry {
+  id: string;
+  name: string;
+  filePath: string;
+}
+
 export interface PluginSettings {
   walletJwk: string;
-  indexFilePath: string;
+  indexes: IndexEntry[];
+  activeIndexId: string;
   allowedExtensions: string;
   defaultGateway: string;
 }

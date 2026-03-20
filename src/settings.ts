@@ -1,10 +1,13 @@
-import { App, Notice, PluginSettingTab, Setting, TextAreaComponent } from "obsidian";
+import { App, Notice, PluginSettingTab, Setting, TextAreaComponent, setIcon } from "obsidian";
 import type MeridianPlugin from "./main";
-import type { PluginSettings } from "./types";
+import type { IndexEntry, PluginSettings } from "./types";
+
+export const DEFAULT_INDEX_ID = "default";
 
 export const DEFAULT_SETTINGS: PluginSettings = {
   walletJwk: "",
-  indexFilePath: "meridian/index.json",
+  indexes: [{ id: DEFAULT_INDEX_ID, name: "Default", filePath: "meridian/index.json" }],
+  activeIndexId: DEFAULT_INDEX_ID,
   allowedExtensions: "md,pdf,png,jpg,jpeg,gif,webp,mp4,mp3,txt,csv,json",
   defaultGateway: "https://arweave.net",
 };
@@ -22,6 +25,10 @@ export class MeridianSettingTab extends PluginSettingTab {
     containerEl.empty();
 
     containerEl.createEl("h2", { text: "Meridian" });
+
+    // -------------------------------------------------------------------------
+    // Wallet
+    // -------------------------------------------------------------------------
 
     new Setting(containerEl)
       .setName("Arweave wallet (JWK)")
@@ -57,31 +64,107 @@ export class MeridianSettingTab extends PluginSettingTab {
         })
       );
 
-    containerEl.createEl("h3", { text: "Archive Index" });
+    // -------------------------------------------------------------------------
+    // Archive indexes
+    // -------------------------------------------------------------------------
 
-    new Setting(containerEl)
-      .setName("Index file path")
-      .setDesc(
-        "Vault-relative path where the JSON archive index will be stored. " +
-          "The parent folder will be created automatically if it does not exist."
-      )
-      .addText((text) =>
-        text
-          .setPlaceholder("meridian/index.json")
-          .setValue(this.plugin.settings.indexFilePath)
-          .onChange(async (value) => {
-            this.plugin.settings.indexFilePath = value.trim();
+    containerEl.createEl("h3", { text: "Archive Indexes" });
+    containerEl.createEl("p", {
+      cls: "setting-item-description",
+      text: "Define one or more named index files. The active index is used by the modal and can be switched at any time.",
+    });
+
+    const indexListEl = containerEl.createDiv("meridian-settings-index-list");
+
+    const renderIndexList = (): void => {
+      indexListEl.empty();
+
+      for (let i = 0; i < this.plugin.settings.indexes.length; i++) {
+        const entry = this.plugin.settings.indexes[i];
+        const isActive = this.plugin.settings.activeIndexId === entry.id;
+        const row = indexListEl.createDiv({ cls: "meridian-settings-index-row" });
+
+        const inputs = row.createDiv("meridian-settings-index-inputs");
+
+        const nameInput = inputs.createEl("input", {
+          type: "text",
+          placeholder: "Name (e.g. Work)",
+        });
+        nameInput.value = entry.name;
+        nameInput.addEventListener("change", async () => {
+          this.plugin.settings.indexes[i].name = nameInput.value.trim();
+          await this.plugin.saveSettings();
+        });
+
+        const pathInput = inputs.createEl("input", {
+          type: "text",
+          placeholder: "meridian/index.json",
+        });
+        pathInput.value = entry.filePath;
+        pathInput.style.flex = "2";
+        pathInput.addEventListener("change", async () => {
+          this.plugin.settings.indexes[i].filePath = pathInput.value.trim();
+          await this.plugin.saveSettings();
+        });
+
+        const actions = row.createDiv("meridian-settings-index-actions");
+
+        if (isActive) {
+          const badge = actions.createSpan({ cls: "meridian-active-badge", text: "Active" });
+          badge.title = "This is the currently active index";
+        } else {
+          const setDefaultBtn = actions.createEl("button", { text: "Set active" });
+          setDefaultBtn.addEventListener("click", async () => {
+            this.plugin.settings.activeIndexId = entry.id;
             await this.plugin.saveSettings();
-          })
-      );
+            renderIndexList();
+          });
+        }
+
+        if (this.plugin.settings.indexes.length > 1) {
+          const deleteBtn = actions.createEl("button", { cls: "meridian-settings-delete-btn" });
+          deleteBtn.title = "Remove this index";
+          setIcon(deleteBtn, "trash-2");
+          deleteBtn.addEventListener("click", async () => {
+            this.plugin.settings.indexes.splice(i, 1);
+            if (this.plugin.settings.activeIndexId === entry.id) {
+              this.plugin.settings.activeIndexId = this.plugin.settings.indexes[0].id;
+            }
+            await this.plugin.saveSettings();
+            renderIndexList();
+          });
+        }
+      }
+
+      const addBtn = indexListEl.createEl("button", {
+        text: "Add index",
+        cls: "meridian-settings-add-btn",
+      });
+      addBtn.addEventListener("click", async () => {
+        const newEntry: IndexEntry = {
+          id: generateId(),
+          name: "",
+          filePath: "",
+        };
+        this.plugin.settings.indexes.push(newEntry);
+        await this.plugin.saveSettings();
+        renderIndexList();
+      });
+    };
+
+    renderIndexList();
+
+    // -------------------------------------------------------------------------
+    // File filters
+    // -------------------------------------------------------------------------
 
     containerEl.createEl("h3", { text: "File Filters" });
 
     new Setting(containerEl)
       .setName("Allowed file extensions")
       .setDesc(
-        "Comma-separated list of extensions to show in the upload modal (without leading dots). " +
-          "Leave empty to show all files."
+        "Comma-separated list of extensions shown in the native file dialog filter (without leading dots). " +
+          "Leave empty to allow all files."
       )
       .addText((text) =>
         text
@@ -92,6 +175,10 @@ export class MeridianSettingTab extends PluginSettingTab {
             await this.plugin.saveSettings();
           })
       );
+
+    // -------------------------------------------------------------------------
+    // Network
+    // -------------------------------------------------------------------------
 
     containerEl.createEl("h3", { text: "Network" });
 
@@ -142,4 +229,8 @@ export function parseAllowedExtensions(raw: string): Set<string> {
       .map((ext) => ext.trim().toLowerCase().replace(/^\./, ""))
       .filter(Boolean)
   );
+}
+
+function generateId(): string {
+  return Math.random().toString(36).slice(2, 10);
 }

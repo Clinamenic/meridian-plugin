@@ -1,4 +1,30 @@
 /* ---------------------------------------------------------------------------
+   Index selector bar
+--------------------------------------------------------------------------- */
+
+.meridian-modal .meridian-index-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.meridian-modal .meridian-index-label {
+  font-size: var(--font-ui-smaller);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.meridian-modal .meridian-index-select {
+  flex: 1;
+  max-width: 240px;
+  font-size: var(--font-ui-small);
+}
+
+/* ---------------------------------------------------------------------------
    Tab bar
 --------------------------------------------------------------------------- */
 
@@ -347,4 +373,80 @@
 .meridian-modal .meridian-icon-btn--danger:hover {
   color: var(--color-red);
   background-color: var(--background-modifier-error);
+}
+
+/* ---------------------------------------------------------------------------
+   Settings: index list
+--------------------------------------------------------------------------- */
+
+.meridian-settings-index-list {
+  margin-bottom: 12px;
+}
+
+.meridian-settings-index-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.meridian-settings-index-inputs {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.meridian-settings-index-inputs input:first-child {
+  flex: 1;
+}
+
+.meridian-settings-index-inputs input:last-child {
+  flex: 2;
+}
+
+.meridian-settings-index-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.meridian-active-badge {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-accent);
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: var(--radius-s);
+  background-color: var(--background-modifier-active-hover);
+  white-space: nowrap;
+}
+
+.meridian-settings-delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+}
+
+.meridian-settings-delete-btn:hover {
+  color: var(--color-red);
+  background-color: var(--background-modifier-error);
+}
+
+.meridian-settings-delete-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.meridian-settings-add-btn {
+  margin-top: 8px;
 }

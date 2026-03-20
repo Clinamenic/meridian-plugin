@@ -1,5 +1,5 @@
 import { Notice, Plugin } from "obsidian";
-import { MeridianSettingTab, DEFAULT_SETTINGS, validateJwk } from "./settings";
+import { DEFAULT_INDEX_ID, DEFAULT_SETTINGS, MeridianSettingTab, validateJwk } from "./settings";
 import { UploadModal } from "./upload-modal";
 import type { PluginSettings } from "./types";
 
@@ -27,11 +27,20 @@ export default class MeridianPlugin extends Plugin {
   onunload(): void {}
 
   async loadSettings(): Promise<void> {
-    this.settings = Object.assign(
-      {},
-      DEFAULT_SETTINGS,
-      await this.loadData()
-    );
+    const saved = (await this.loadData()) as Partial<PluginSettings> & {
+      indexFilePath?: string;
+    };
+
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, saved);
+
+    // Migrate from the old single indexFilePath field
+    if (saved?.indexFilePath && (!saved.indexes || saved.indexes.length === 0)) {
+      this.settings.indexes = [
+        { id: DEFAULT_INDEX_ID, name: "Default", filePath: saved.indexFilePath },
+      ];
+      this.settings.activeIndexId = DEFAULT_INDEX_ID;
+      await this.saveSettings();
+    }
   }
 
   async saveSettings(): Promise<void> {
@@ -47,13 +56,13 @@ export default class MeridianPlugin extends Plugin {
       return;
     }
 
-    if (!this.settings.indexFilePath.trim()) {
+    if (!this.settings.indexes || this.settings.indexes.length === 0) {
       new Notice(
-        "Meridian: No index file path configured. Go to Settings > Meridian."
+        "Meridian: No archive indexes configured. Go to Settings > Meridian."
       );
       return;
     }
 
-    new UploadModal(this.app, this.settings).open();
+    new UploadModal(this.app, this.settings, () => this.saveSettings()).open();
   }
 }
