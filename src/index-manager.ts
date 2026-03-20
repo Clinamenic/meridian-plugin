@@ -71,6 +71,18 @@ export class IndexManager {
     await this.writeIndex(index);
   }
 
+  async updateDocumentLabel(uuid: string, label: string): Promise<void> {
+    const index = await this.readIndex();
+    const doc = index.documents.find((d) => d.uuid === uuid);
+    if (!doc) return;
+    if (label.trim() === "") {
+      delete doc.label;
+    } else {
+      doc.label = label.trim();
+    }
+    await this.writeIndex(index);
+  }
+
   private migrate(raw: Record<string, unknown>): ArchiveIndex {
     if (raw.version === INDEX_VERSION && Array.isArray(raw.documents)) {
       return raw as unknown as ArchiveIndex;

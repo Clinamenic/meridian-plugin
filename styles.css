@@ -441,8 +441,18 @@
 }
 
 .meridian-modal .meridian-icon-btn--danger:hover {
-  color: var(--color-red);
-  background-color: var(--background-modifier-error);
+  color: var(--text-on-accent);
+  background-color: var(--color-red);
+}
+
+/* Inline name edit input */
+.meridian-modal .meridian-name-input {
+  width: 100%;
+  font-size: var(--font-ui-small);
+  font-weight: 500;
+  padding: 1px 4px;
+  height: 22px;
+  box-sizing: border-box;
 }
 
 /* ---------------------------------------------------------------------------

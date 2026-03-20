@@ -15,6 +15,7 @@ export interface VersionRecord {
 export interface DocumentRecord {
   uuid: string;
   filePath: string;
+  label?: string;
   versions: VersionRecord[];
 }
 

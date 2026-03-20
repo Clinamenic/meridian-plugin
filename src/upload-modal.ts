@@ -563,6 +563,7 @@ export class UploadModal extends Modal {
     onRefresh: () => void
   ): void {
     const filename = doc.filePath.split(/[/\\]/).pop() ?? doc.filePath;
+    const displayName = doc.label ?? filename;
     const latestVersion = doc.versions[doc.versions.length - 1];
     const versionCount = doc.versions.length;
 
@@ -575,7 +576,7 @@ export class UploadModal extends Modal {
     });
     setIcon(chevronBtn, "chevron-right");
 
-    const nameEl = docRow.createDiv({ cls: "meridian-col meridian-col-name", text: filename });
+    const nameEl = docRow.createDiv({ cls: "meridian-col meridian-col-name", text: displayName });
     nameEl.title = doc.filePath + `\nUUID: ${doc.uuid}`;
 
     const uuidEl = docRow.createDiv({ cls: "meridian-col meridian-col-uuid" });
@@ -593,6 +594,38 @@ export class UploadModal extends Modal {
     });
 
     const docActions = docRow.createDiv("meridian-archive-actions");
+
+    const editBtn = docActions.createEl("button", {
+      cls: "meridian-icon-btn",
+      title: "Edit display name",
+    });
+    setIcon(editBtn, "pencil");
+    editBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      nameEl.empty();
+      const input = nameEl.createEl("input", {
+        cls: "meridian-name-input",
+        type: "text",
+      });
+      input.value = doc.label ?? filename;
+      input.focus();
+      input.select();
+
+      const save = async (): Promise<void> => {
+        const newLabel = input.value.trim();
+        await indexManager.updateDocumentLabel(doc.uuid, newLabel);
+        doc.label = newLabel || undefined;
+        nameEl.empty();
+        nameEl.setText(doc.label ?? filename);
+      };
+
+      input.addEventListener("keydown", (ev) => {
+        if (ev.key === "Enter") { ev.preventDefault(); save(); }
+        if (ev.key === "Escape") { nameEl.empty(); nameEl.setText(doc.label ?? filename); }
+      });
+      input.addEventListener("blur", save);
+    });
+
     const deleteDocBtn = docActions.createEl("button", {
       cls: "meridian-icon-btn meridian-icon-btn--danger",
       title: "Remove all versions from local index",
@@ -601,12 +634,12 @@ export class UploadModal extends Modal {
     deleteDocBtn.addEventListener("click", async (e) => {
       e.stopPropagation();
       const confirmed = confirm(
-        `Remove all ${versionCount} version${versionCount === 1 ? "" : "s"} of "${filename}" from the local index?\n\n` +
+        `Remove all ${versionCount} version${versionCount === 1 ? "" : "s"} of "${displayName}" from the local index?\n\n` +
           `Arweave transactions are permanent and cannot be removed from the network.`
       );
       if (!confirmed) return;
       await indexManager.deleteDocument(doc.uuid);
-      new Notice(`"${filename}" removed from index. Arweave transactions remain permanent.`);
+      new Notice(`"${displayName}" removed from index. Arweave transactions remain permanent.`);
       onRefresh();
     });
 
@@ -669,7 +702,7 @@ export class UploadModal extends Modal {
       setIcon(deleteVerBtn, "trash-2");
       deleteVerBtn.addEventListener("click", async () => {
         const confirmed = confirm(
-          `Remove v${versionNum} of "${filename}" from the local index?\n\n` +
+          `Remove v${versionNum} of "${displayName}" from the local index?\n\n` +
             `TX: ${ver.txId.slice(0, 12)}...\n\n` +
             `The Arweave transaction is permanent and cannot be removed from the network.`
         );
