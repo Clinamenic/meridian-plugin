@@ -1,6 +1,6 @@
 {
   "name": "meridian-plugin",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Obsidian plugin for uploading vault files to Arweave",
   "main": "main.js",
   "scripts": {

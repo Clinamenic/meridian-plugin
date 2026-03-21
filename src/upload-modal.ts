@@ -612,6 +612,7 @@ export class UploadModal extends Modal {
       input.select();
 
       const save = async (): Promise<void> => {
+        input.removeEventListener("blur", save);
         const newLabel = input.value.trim();
         await indexManager.updateDocumentLabel(doc.uuid, newLabel);
         doc.label = newLabel || undefined;
@@ -619,9 +620,15 @@ export class UploadModal extends Modal {
         nameEl.setText(doc.label ?? filename);
       };
 
+      const cancel = (): void => {
+        input.removeEventListener("blur", save);
+        nameEl.empty();
+        nameEl.setText(doc.label ?? filename);
+      };
+
       input.addEventListener("keydown", (ev) => {
         if (ev.key === "Enter") { ev.preventDefault(); save(); }
-        if (ev.key === "Escape") { nameEl.empty(); nameEl.setText(doc.label ?? filename); }
+        if (ev.key === "Escape") { cancel(); }
       });
       input.addEventListener("blur", save);
     });
