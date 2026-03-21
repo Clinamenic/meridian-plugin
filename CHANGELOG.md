@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.2 - 2026-03-21
+
+Commit: 0bdd98f (2026-03-21T14:54:18-07:00)
+
+### Fixed
+
+- fix(archive): label editor no longer triggers a save when pressing Escape — the blur listener is now removed before clearing the DOM, so cancelling correctly discards changes
+- fix(archive): pressing Enter no longer causes a duplicate concurrent save — the blur listener is removed at the start of the save path, preventing the DOM removal from firing a second write
+
 ## 0.6.1 - 2026-03-19
 
 Commit: 5536f7c (2026-03-19T23:22:34-07:00)
