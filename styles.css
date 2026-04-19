@@ -2,14 +2,14 @@
    Index selector bar
 --------------------------------------------------------------------------- */
 
-.meridian-modal .meridian-index-bar {
+.meridian-archiver-modal .meridian-archiver-index-bar {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 12px;
 }
 
-.meridian-modal .meridian-index-label {
+.meridian-archiver-modal .meridian-archiver-index-label {
   font-size: var(--font-ui-smaller);
   font-weight: 600;
   color: var(--text-muted);
@@ -18,7 +18,7 @@
   white-space: nowrap;
 }
 
-.meridian-modal .meridian-index-select {
+.meridian-archiver-modal .meridian-archiver-index-select {
   flex: 1;
   max-width: 240px;
   font-size: var(--font-ui-small);
@@ -28,14 +28,14 @@
    Tab bar
 --------------------------------------------------------------------------- */
 
-.meridian-modal .meridian-tab-bar {
+.meridian-archiver-modal .meridian-archiver-tab-bar {
   display: flex;
   gap: 2px;
   border-bottom: 1px solid var(--background-modifier-border);
   margin-bottom: 20px;
 }
 
-.meridian-modal .meridian-tab {
+.meridian-archiver-modal .meridian-archiver-tab {
   padding: 6px 16px;
   font-size: var(--font-ui-small);
   font-weight: 500;
@@ -47,12 +47,12 @@
   user-select: none;
 }
 
-.meridian-modal .meridian-tab:hover {
+.meridian-archiver-modal .meridian-archiver-tab:hover {
   color: var(--text-normal);
   background-color: var(--background-modifier-hover);
 }
 
-.meridian-modal .meridian-tab.meridian-tab--active {
+.meridian-archiver-modal .meridian-archiver-tab.meridian-archiver-tab--active {
   color: var(--text-accent);
   border-bottom-color: var(--text-accent);
 }
@@ -61,22 +61,22 @@
    Shared layout helpers
 --------------------------------------------------------------------------- */
 
-.meridian-modal .meridian-tab-content {
+.meridian-archiver-modal .meridian-archiver-tab-content {
   min-height: 300px;
 }
 
-.meridian-modal h2 {
+.meridian-archiver-modal h2 {
   margin: 0 0 4px;
   font-size: var(--font-ui-medium);
 }
 
-.meridian-modal .meridian-subtitle {
+.meridian-archiver-modal .meridian-archiver-subtitle {
   color: var(--text-muted);
   font-size: var(--font-ui-small);
   margin: 0 0 16px;
 }
 
-.meridian-modal .modal-button-container {
+.meridian-archiver-modal .modal-button-container {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -84,7 +84,7 @@
   margin-top: 16px;
 }
 
-.meridian-modal .meridian-count-label {
+.meridian-archiver-modal .meridian-archiver-count-label {
   flex: 1;
   font-size: var(--font-ui-small);
   color: var(--text-muted);
@@ -94,18 +94,18 @@
    Upload tab: file selection
 --------------------------------------------------------------------------- */
 
-.meridian-modal .meridian-browse-btn {
+.meridian-archiver-modal .meridian-archiver-browse-btn {
   margin-bottom: 16px;
 }
 
-.meridian-modal .meridian-selected-files {
+.meridian-archiver-modal .meridian-archiver-selected-files {
   border: 1px solid var(--background-modifier-border);
   border-radius: var(--radius-s);
   margin-bottom: 4px;
   overflow: hidden;
 }
 
-.meridian-modal .meridian-selected-item {
+.meridian-archiver-modal .meridian-archiver-selected-item {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -113,16 +113,16 @@
   border-bottom: 1px solid var(--background-modifier-border);
 }
 
-.meridian-modal .meridian-selected-item:last-child {
+.meridian-archiver-modal .meridian-archiver-selected-item:last-child {
   border-bottom: none;
 }
 
-.meridian-modal .meridian-selected-info {
+.meridian-archiver-modal .meridian-archiver-selected-info {
   flex: 1;
   min-width: 0;
 }
 
-.meridian-modal .meridian-selected-name {
+.meridian-archiver-modal .meridian-archiver-selected-name {
   font-size: var(--font-ui-small);
   font-weight: 500;
   overflow: hidden;
@@ -130,7 +130,7 @@
   white-space: nowrap;
 }
 
-.meridian-modal .meridian-selected-path {
+.meridian-archiver-modal .meridian-archiver-selected-path {
   font-size: var(--font-ui-smaller);
   color: var(--text-muted);
   overflow: hidden;
@@ -138,20 +138,20 @@
   white-space: nowrap;
 }
 
-.meridian-modal .meridian-selected-right {
+.meridian-archiver-modal .meridian-archiver-selected-right {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
 }
 
-.meridian-modal .file-size {
+.meridian-archiver-modal .file-size {
   font-size: var(--font-ui-smaller);
   color: var(--text-muted);
   white-space: nowrap;
 }
 
-.meridian-modal .meridian-remove-btn {
+.meridian-archiver-modal .meridian-archiver-remove-btn {
   font-size: var(--font-ui-smaller);
 }
 
@@ -159,26 +159,26 @@
    Upload tab: tag entry
 --------------------------------------------------------------------------- */
 
-.meridian-modal .tag-container {
+.meridian-archiver-modal .tag-container {
   margin-bottom: 10px;
 }
 
-.meridian-modal .tag-row {
+.meridian-archiver-modal .tag-row {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 8px;
 }
 
-.meridian-modal .tag-row input {
+.meridian-archiver-modal .tag-row input {
   flex: 1;
 }
 
-.meridian-modal .tag-remove-btn {
+.meridian-archiver-modal .tag-remove-btn {
   flex-shrink: 0;
 }
 
-.meridian-modal .meridian-add-tag-btn {
+.meridian-archiver-modal .meridian-archiver-add-tag-btn {
   margin-bottom: 4px;
 }
 
@@ -186,13 +186,13 @@
    Upload tab: progress
 --------------------------------------------------------------------------- */
 
-.meridian-modal .summary-stats {
+.meridian-archiver-modal .summary-stats {
   font-size: var(--font-ui-small);
   color: var(--text-muted);
   margin-bottom: 12px;
 }
 
-.meridian-modal .upload-results {
+.meridian-archiver-modal .upload-results {
   max-height: 320px;
   overflow-y: auto;
   border: 1px solid var(--background-modifier-border);
@@ -201,7 +201,7 @@
   margin-bottom: 12px;
 }
 
-.meridian-modal .result-item {
+.meridian-archiver-modal .result-item {
   display: flex;
   align-items: flex-start;
   gap: 8px;
@@ -210,44 +210,44 @@
   font-size: var(--font-ui-small);
 }
 
-.meridian-modal .result-item:last-child {
+.meridian-archiver-modal .result-item:last-child {
   border-bottom: none;
 }
 
-.meridian-modal .result-status {
+.meridian-archiver-modal .result-status {
   flex-shrink: 0;
   width: 80px;
   font-weight: 600;
 }
 
-.meridian-modal .result-status.pending {
+.meridian-archiver-modal .result-status.pending {
   color: var(--text-muted);
 }
 
-.meridian-modal .result-status.uploading {
+.meridian-archiver-modal .result-status.uploading {
   color: var(--color-yellow);
 }
 
-.meridian-modal .result-status.done {
+.meridian-archiver-modal .result-status.done {
   color: var(--color-green);
 }
 
-.meridian-modal .result-status.error {
+.meridian-archiver-modal .result-status.error {
   color: var(--color-red);
 }
 
-.meridian-modal .result-info {
+.meridian-archiver-modal .result-info {
   flex: 1;
   min-width: 0;
 }
 
-.meridian-modal .result-file {
+.meridian-archiver-modal .result-file {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.meridian-modal .result-txid {
+.meridian-archiver-modal .result-txid {
   font-family: var(--font-monospace);
   font-size: var(--font-ui-smaller);
   color: var(--text-muted);
@@ -256,7 +256,7 @@
   white-space: nowrap;
 }
 
-.meridian-modal .result-error {
+.meridian-archiver-modal .result-error {
   color: var(--color-red);
   font-size: var(--font-ui-smaller);
 }
@@ -265,24 +265,24 @@
    Archive tab
 --------------------------------------------------------------------------- */
 
-.meridian-modal .meridian-search {
+.meridian-archiver-modal .meridian-archiver-search {
   width: 100%;
   margin-bottom: 8px;
   box-sizing: border-box;
 }
 
-.meridian-modal .meridian-archive-count {
+.meridian-archiver-modal .meridian-archiver-archive-count {
   font-size: var(--font-ui-smaller);
   color: var(--text-muted);
   margin-bottom: 6px;
 }
 
-.meridian-modal .meridian-archive-list {
+.meridian-archiver-modal .meridian-archiver-archive-list {
   max-height: 400px;
   overflow-y: auto;
 }
 
-.meridian-modal .meridian-empty {
+.meridian-archiver-modal .meridian-archiver-empty {
   color: var(--text-muted);
   font-size: var(--font-ui-small);
   text-align: center;
@@ -290,7 +290,7 @@
 }
 
 /* Document header row */
-.meridian-modal .meridian-doc-row {
+.meridian-archiver-modal .meridian-archiver-doc-row {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -300,13 +300,13 @@
 }
 
 /* Versions container — hidden until expanded */
-.meridian-modal .meridian-doc-versions {
+.meridian-archiver-modal .meridian-archiver-doc-versions {
   background-color: var(--background-secondary);
   border-bottom: 1px solid var(--background-modifier-border);
 }
 
 /* Version sub-row */
-.meridian-modal .meridian-version-row {
+.meridian-archiver-modal .meridian-archiver-version-row {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -314,12 +314,12 @@
   border-bottom: 1px solid var(--background-modifier-border-hover);
 }
 
-.meridian-modal .meridian-version-row:last-child {
+.meridian-archiver-modal .meridian-archiver-version-row:last-child {
   border-bottom: none;
 }
 
 /* Version number label (v1, v2, ...) */
-.meridian-modal .meridian-version-num {
+.meridian-archiver-modal .meridian-archiver-version-num {
   width: 24px;
   font-size: var(--font-ui-smaller);
   font-weight: 600;
@@ -328,7 +328,7 @@
 }
 
 /* Chevron expand button */
-.meridian-modal .meridian-chevron-btn {
+.meridian-archiver-modal .meridian-archiver-chevron-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -344,23 +344,23 @@
   box-shadow: none;
 }
 
-.meridian-modal .meridian-chevron-btn:hover {
+.meridian-archiver-modal .meridian-archiver-chevron-btn:hover {
   background-color: var(--background-modifier-hover);
   color: var(--text-normal);
 }
 
-.meridian-modal .meridian-chevron-btn svg {
+.meridian-archiver-modal .meridian-archiver-chevron-btn svg {
   width: 14px;
   height: 14px;
   transition: transform 0.15s ease;
 }
 
-.meridian-modal .meridian-chevron-btn.meridian-chevron--expanded svg {
+.meridian-archiver-modal .meridian-archiver-chevron-btn.meridian-archiver-chevron--expanded svg {
   transform: rotate(90deg);
 }
 
 /* Shared column base */
-.meridian-modal .meridian-col {
+.meridian-archiver-modal .meridian-archiver-col {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -369,14 +369,14 @@
 }
 
 /* Filename: grows to fill available space */
-.meridian-modal .meridian-col-name {
+.meridian-archiver-modal .meridian-archiver-col-name {
   flex: 1;
   min-width: 0;
   font-weight: 500;
 }
 
 /* UUID: fixed width, monospace, faint */
-.meridian-modal .meridian-col-uuid {
+.meridian-archiver-modal .meridian-archiver-col-uuid {
   width: 80px;
   font-family: var(--font-monospace);
   font-size: var(--font-ui-smaller);
@@ -384,7 +384,7 @@
 }
 
 /* Version count badge */
-.meridian-modal .meridian-col-versions {
+.meridian-archiver-modal .meridian-archiver-col-versions {
   width: 28px;
   font-size: var(--font-ui-smaller);
   color: var(--text-muted);
@@ -392,7 +392,7 @@
 }
 
 /* TX ID: fixed width, monospace */
-.meridian-modal .meridian-col-txid {
+.meridian-archiver-modal .meridian-archiver-col-txid {
   width: 110px;
   font-family: var(--font-monospace);
   font-size: var(--font-ui-smaller);
@@ -400,7 +400,7 @@
 }
 
 /* Date: fixed width */
-.meridian-modal .meridian-col-date {
+.meridian-archiver-modal .meridian-archiver-col-date {
   width: 100px;
   font-size: var(--font-ui-smaller);
   color: var(--text-muted);
@@ -408,14 +408,14 @@
 }
 
 /* Icon button group */
-.meridian-modal .meridian-archive-actions {
+.meridian-archiver-modal .meridian-archiver-archive-actions {
   display: flex;
   align-items: center;
   gap: 2px;
   flex-shrink: 0;
 }
 
-.meridian-modal .meridian-icon-btn {
+.meridian-archiver-modal .meridian-archiver-icon-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -430,23 +430,23 @@
   box-shadow: none;
 }
 
-.meridian-modal .meridian-icon-btn:hover {
+.meridian-archiver-modal .meridian-archiver-icon-btn:hover {
   color: var(--text-normal);
   background-color: var(--background-modifier-hover);
 }
 
-.meridian-modal .meridian-icon-btn svg {
+.meridian-archiver-modal .meridian-archiver-icon-btn svg {
   width: 14px;
   height: 14px;
 }
 
-.meridian-modal .meridian-icon-btn--danger:hover {
+.meridian-archiver-modal .meridian-archiver-icon-btn--danger:hover {
   color: var(--text-on-accent);
   background-color: var(--color-red);
 }
 
 /* Inline name edit input */
-.meridian-modal .meridian-name-input {
+.meridian-archiver-modal .meridian-archiver-name-input {
   width: 100%;
   font-size: var(--font-ui-small);
   font-weight: 500;
@@ -459,11 +459,11 @@
    Settings: index list
 --------------------------------------------------------------------------- */
 
-.meridian-settings-index-list {
+.meridian-archiver-settings-index-list {
   margin-bottom: 12px;
 }
 
-.meridian-settings-index-row {
+.meridian-archiver-settings-index-row {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -471,29 +471,29 @@
   border-bottom: 1px solid var(--background-modifier-border);
 }
 
-.meridian-settings-index-inputs {
+.meridian-archiver-settings-index-inputs {
   display: flex;
   gap: 8px;
   flex: 1;
   min-width: 0;
 }
 
-.meridian-settings-index-inputs input:first-child {
+.meridian-archiver-settings-index-inputs input:first-child {
   flex: 1;
 }
 
-.meridian-settings-index-inputs input:last-child {
+.meridian-archiver-settings-index-inputs input:last-child {
   flex: 2;
 }
 
-.meridian-settings-index-actions {
+.meridian-archiver-settings-index-actions {
   display: flex;
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
 }
 
-.meridian-active-badge {
+.meridian-archiver-active-badge {
   font-size: var(--font-ui-smaller);
   color: var(--text-accent);
   font-weight: 500;
@@ -503,7 +503,7 @@
   white-space: nowrap;
 }
 
-.meridian-settings-delete-btn {
+.meridian-archiver-settings-delete-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -517,16 +517,16 @@
   cursor: pointer;
 }
 
-.meridian-settings-delete-btn:hover {
+.meridian-archiver-settings-delete-btn:hover {
   color: var(--color-red);
   background-color: var(--background-modifier-error);
 }
 
-.meridian-settings-delete-btn svg {
+.meridian-archiver-settings-delete-btn svg {
   width: 14px;
   height: 14px;
 }
 
-.meridian-settings-add-btn {
+.meridian-archiver-settings-add-btn {
   margin-top: 8px;
 }

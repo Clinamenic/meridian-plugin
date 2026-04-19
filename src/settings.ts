@@ -1,21 +1,21 @@
 import { App, Notice, PluginSettingTab, Setting, TextAreaComponent, setIcon } from "obsidian";
-import type MeridianPlugin from "./main";
+import type MeridianArchiverPlugin from "./main";
 import type { IndexEntry, PluginSettings } from "./types";
 
 export const DEFAULT_INDEX_ID = "default";
 
 export const DEFAULT_SETTINGS: PluginSettings = {
   walletJwk: "",
-  indexes: [{ id: DEFAULT_INDEX_ID, name: "Default", filePath: "meridian/index.json" }],
+  indexes: [{ id: DEFAULT_INDEX_ID, name: "Default", filePath: "meridian/archiver/index.json" }],
   activeIndexId: DEFAULT_INDEX_ID,
   allowedExtensions: "md,pdf,png,jpg,jpeg,gif,webp,mp4,mp3,txt,csv,json",
   defaultGateway: "https://arweave.net",
 };
 
-export class MeridianSettingTab extends PluginSettingTab {
-  plugin: MeridianPlugin;
+export class MeridianArchiverSettingTab extends PluginSettingTab {
+  plugin: MeridianArchiverPlugin;
 
-  constructor(app: App, plugin: MeridianPlugin) {
+  constructor(app: App, plugin: MeridianArchiverPlugin) {
     super(app, plugin);
     this.plugin = plugin;
   }
@@ -24,7 +24,7 @@ export class MeridianSettingTab extends PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
 
-    containerEl.createEl("h2", { text: "Meridian" });
+    containerEl.createEl("h2", { text: "Meridian Archiver" });
 
     // -------------------------------------------------------------------------
     // Wallet
@@ -74,7 +74,7 @@ export class MeridianSettingTab extends PluginSettingTab {
       text: "Define one or more named index files. The active index is used by the modal and can be switched at any time.",
     });
 
-    const indexListEl = containerEl.createDiv("meridian-settings-index-list");
+    const indexListEl = containerEl.createDiv("meridian-archiver-settings-index-list");
 
     const renderIndexList = (): void => {
       indexListEl.empty();
@@ -82,9 +82,9 @@ export class MeridianSettingTab extends PluginSettingTab {
       for (let i = 0; i < this.plugin.settings.indexes.length; i++) {
         const entry = this.plugin.settings.indexes[i];
         const isActive = this.plugin.settings.activeIndexId === entry.id;
-        const row = indexListEl.createDiv({ cls: "meridian-settings-index-row" });
+        const row = indexListEl.createDiv({ cls: "meridian-archiver-settings-index-row" });
 
-        const inputs = row.createDiv("meridian-settings-index-inputs");
+        const inputs = row.createDiv("meridian-archiver-settings-index-inputs");
 
         const nameInput = inputs.createEl("input", {
           type: "text",
@@ -98,7 +98,7 @@ export class MeridianSettingTab extends PluginSettingTab {
 
         const pathInput = inputs.createEl("input", {
           type: "text",
-          placeholder: "meridian/index.json",
+          placeholder: "meridian/archiver/index.json",
         });
         pathInput.value = entry.filePath;
         pathInput.style.flex = "2";
@@ -107,10 +107,10 @@ export class MeridianSettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         });
 
-        const actions = row.createDiv("meridian-settings-index-actions");
+        const actions = row.createDiv("meridian-archiver-settings-index-actions");
 
         if (isActive) {
-          const badge = actions.createSpan({ cls: "meridian-active-badge", text: "Active" });
+          const badge = actions.createSpan({ cls: "meridian-archiver-active-badge", text: "Active" });
           badge.title = "This is the currently active index";
         } else {
           const setDefaultBtn = actions.createEl("button", { text: "Set active" });
@@ -122,7 +122,7 @@ export class MeridianSettingTab extends PluginSettingTab {
         }
 
         if (this.plugin.settings.indexes.length > 1) {
-          const deleteBtn = actions.createEl("button", { cls: "meridian-settings-delete-btn" });
+          const deleteBtn = actions.createEl("button", { cls: "meridian-archiver-settings-delete-btn" });
           deleteBtn.title = "Remove this index";
           setIcon(deleteBtn, "trash-2");
           deleteBtn.addEventListener("click", async () => {
@@ -138,7 +138,7 @@ export class MeridianSettingTab extends PluginSettingTab {
 
       const addBtn = indexListEl.createEl("button", {
         text: "Add index",
-        cls: "meridian-settings-add-btn",
+        cls: "meridian-archiver-settings-add-btn",
       });
       addBtn.addEventListener("click", async () => {
         const newEntry: IndexEntry = {

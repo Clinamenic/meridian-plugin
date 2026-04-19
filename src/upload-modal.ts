@@ -100,7 +100,7 @@ export class UploadModal extends Modal {
     super(app);
     this.settings = settings;
     this.saveSettings = saveSettings;
-    this.modalEl.addClass("meridian-modal");
+    this.modalEl.addClass("meridian-archiver-modal");
   }
 
   private getActiveIndex(): IndexEntry {
@@ -111,9 +111,9 @@ export class UploadModal extends Modal {
   onOpen(): void {
     const { contentEl } = this;
 
-    const selectorBar = contentEl.createDiv("meridian-index-bar");
-    selectorBar.createSpan({ cls: "meridian-index-label", text: "Index" });
-    this.indexSelectorEl = selectorBar.createEl("select", { cls: "meridian-index-select" });
+    const selectorBar = contentEl.createDiv("meridian-archiver-index-bar");
+    selectorBar.createSpan({ cls: "meridian-archiver-index-label", text: "Index" });
+    this.indexSelectorEl = selectorBar.createEl("select", { cls: "meridian-archiver-index-select" });
     this.rebuildIndexSelector();
     this.indexSelectorEl.addEventListener("change", async () => {
       this.settings.activeIndexId = this.indexSelectorEl.value;
@@ -121,10 +121,10 @@ export class UploadModal extends Modal {
       if (this.activeTab === "archive") this.renderActiveTab();
     });
 
-    const tabBar = contentEl.createDiv("meridian-tab-bar");
-    this.uploadTabBtn = tabBar.createDiv({ cls: "meridian-tab meridian-tab--active", text: "Upload" });
-    this.archiveTabBtn = tabBar.createDiv({ cls: "meridian-tab", text: "Archive" });
-    this.tabContentEl = contentEl.createDiv("meridian-tab-content");
+    const tabBar = contentEl.createDiv("meridian-archiver-tab-bar");
+    this.uploadTabBtn = tabBar.createDiv({ cls: "meridian-archiver-tab meridian-archiver-tab--active", text: "Upload" });
+    this.archiveTabBtn = tabBar.createDiv({ cls: "meridian-archiver-tab", text: "Archive" });
+    this.tabContentEl = contentEl.createDiv("meridian-archiver-tab-content");
 
     this.uploadTabBtn.addEventListener("click", () => this.switchTab("upload"));
     this.archiveTabBtn.addEventListener("click", () => this.switchTab("archive"));
@@ -150,8 +150,8 @@ export class UploadModal extends Modal {
   private switchTab(tab: ActiveTab): void {
     if (this.activeTab === tab) return;
     this.activeTab = tab;
-    this.uploadTabBtn.toggleClass("meridian-tab--active", tab === "upload");
-    this.archiveTabBtn.toggleClass("meridian-tab--active", tab === "archive");
+    this.uploadTabBtn.toggleClass("meridian-archiver-tab--active", tab === "upload");
+    this.archiveTabBtn.toggleClass("meridian-archiver-tab--active", tab === "archive");
     this.renderActiveTab();
   }
 
@@ -177,27 +177,27 @@ export class UploadModal extends Modal {
 
     el.createEl("h2", { text: "Select files" });
     el.createEl("p", {
-      cls: "meridian-subtitle",
+      cls: "meridian-archiver-subtitle",
       text: "Choose files from your filesystem to archive on Arweave.",
     });
 
     const browseBtn = el.createEl("button", {
       text: "Browse files...",
-      cls: "mod-cta meridian-browse-btn",
+      cls: "mod-cta meridian-archiver-browse-btn",
     });
     browseBtn.addEventListener("click", () => this.openFileDialog());
 
     if (this.selectedFiles.length > 0) {
-      const list = el.createDiv("meridian-selected-files");
+      const list = el.createDiv("meridian-archiver-selected-files");
       for (let i = 0; i < this.selectedFiles.length; i++) {
         const f = this.selectedFiles[i];
-        const item = list.createDiv("meridian-selected-item");
-        const info = item.createDiv("meridian-selected-info");
-        info.createDiv({ cls: "meridian-selected-name", text: f.name });
-        info.createDiv({ cls: "meridian-selected-path", text: f.path });
-        const right = item.createDiv("meridian-selected-right");
+        const item = list.createDiv("meridian-archiver-selected-item");
+        const info = item.createDiv("meridian-archiver-selected-info");
+        info.createDiv({ cls: "meridian-archiver-selected-name", text: f.name });
+        info.createDiv({ cls: "meridian-archiver-selected-path", text: f.path });
+        const right = item.createDiv("meridian-archiver-selected-right");
         right.createSpan({ cls: "file-size", text: formatBytes(f.size) });
-        const removeBtn = right.createEl("button", { text: "Remove", cls: "meridian-remove-btn" });
+        const removeBtn = right.createEl("button", { text: "Remove", cls: "meridian-archiver-remove-btn" });
         removeBtn.addEventListener("click", () => {
           this.selectedFiles.splice(i, 1);
           this.buildSelectPhase();
@@ -208,7 +208,7 @@ export class UploadModal extends Modal {
     const btnRow = el.createDiv("modal-button-container");
     if (this.selectedFiles.length > 0) {
       btnRow.createSpan({
-        cls: "meridian-count-label",
+        cls: "meridian-archiver-count-label",
         text: `${this.selectedFiles.length} file${this.selectedFiles.length === 1 ? "" : "s"} selected`,
       });
     }
@@ -315,7 +315,7 @@ export class UploadModal extends Modal {
 
     el.createEl("h2", { text: "Add Arweave tags" });
     el.createEl("p", {
-      cls: "meridian-subtitle",
+      cls: "meridian-archiver-subtitle",
       text: `Key/value tags applied to all ${count} selected file${count === 1 ? "" : "s"}.`,
     });
 
@@ -343,7 +343,7 @@ export class UploadModal extends Modal {
 
     this.sessionTags.forEach((tag, i) => renderTagRow(tag, i));
 
-    const addTagBtn = el.createEl("button", { text: "Add tag", cls: "meridian-add-tag-btn" });
+    const addTagBtn = el.createEl("button", { text: "Add tag", cls: "meridian-archiver-add-tag-btn" });
     addTagBtn.addEventListener("click", () => {
       const newTag: ArweaveTag = { name: "", value: "" };
       this.sessionTags.push(newTag);
@@ -472,11 +472,11 @@ export class UploadModal extends Modal {
 
     if (successCount > 0) {
       new Notice(
-        `Meridian: ${successCount} file${successCount === 1 ? "" : "s"} uploaded and saved to index.`
+        `Meridian Archiver: ${successCount} file${successCount === 1 ? "" : "s"} uploaded and saved to index.`
       );
     }
     if (errorCount > 0) {
-      new Notice(`Meridian: ${errorCount} file${errorCount === 1 ? "" : "s"} failed to upload.`);
+      new Notice(`Meridian Archiver: ${errorCount} file${errorCount === 1 ? "" : "s"} failed to upload.`);
     }
     if (this._summaryEl) {
       this._summaryEl.setText(`Complete: ${successCount} uploaded, ${errorCount} failed.`);
@@ -497,11 +497,11 @@ export class UploadModal extends Modal {
     const searchInput = el.createEl("input", {
       type: "text",
       placeholder: "Search by filename, UUID, transaction ID, or tag...",
-      cls: "meridian-search",
+      cls: "meridian-archiver-search",
     });
 
-    const countEl = el.createDiv({ cls: "meridian-archive-count" });
-    const listEl = el.createDiv("meridian-archive-list");
+    const countEl = el.createDiv({ cls: "meridian-archiver-archive-count" });
+    const listEl = el.createDiv("meridian-archiver-archive-list");
     const indexManager = new IndexManager(this.app.vault, this.getActiveIndex().filePath);
 
     const loadAndRender = async (filter: string): Promise<void> => {
@@ -531,7 +531,7 @@ export class UploadModal extends Modal {
 
       if (docs.length === 0) {
         listEl.createEl("p", {
-          cls: "meridian-empty",
+          cls: "meridian-archiver-empty",
           text: query
             ? "No documents match your search."
             : "No documents archived yet. Upload files to get started.",
@@ -568,35 +568,35 @@ export class UploadModal extends Modal {
     const versionCount = doc.versions.length;
 
     // Document header row
-    const docRow = container.createDiv("meridian-doc-row");
+    const docRow = container.createDiv("meridian-archiver-doc-row");
 
     const chevronBtn = docRow.createEl("button", {
-      cls: "meridian-chevron-btn",
+      cls: "meridian-archiver-chevron-btn",
       title: "Expand versions",
     });
     setIcon(chevronBtn, "chevron-right");
 
-    const nameEl = docRow.createDiv({ cls: "meridian-col meridian-col-name", text: displayName });
+    const nameEl = docRow.createDiv({ cls: "meridian-archiver-col meridian-archiver-col-name", text: displayName });
     nameEl.title = doc.filePath + `\nUUID: ${doc.uuid}`;
 
-    const uuidEl = docRow.createDiv({ cls: "meridian-col meridian-col-uuid" });
+    const uuidEl = docRow.createDiv({ cls: "meridian-archiver-col meridian-archiver-col-uuid" });
     uuidEl.setText(doc.uuid.slice(0, 8) + "...");
     uuidEl.title = doc.uuid;
 
     docRow.createDiv({
-      cls: "meridian-col meridian-col-versions",
+      cls: "meridian-archiver-col meridian-archiver-col-versions",
       text: `${versionCount}v`,
     });
 
     docRow.createDiv({
-      cls: "meridian-col meridian-col-date",
+      cls: "meridian-archiver-col meridian-archiver-col-date",
       text: latestVersion ? shortDate(latestVersion.uploadedAt) : "—",
     });
 
-    const docActions = docRow.createDiv("meridian-archive-actions");
+    const docActions = docRow.createDiv("meridian-archiver-archive-actions");
 
     const editBtn = docActions.createEl("button", {
-      cls: "meridian-icon-btn",
+      cls: "meridian-archiver-icon-btn",
       title: "Edit display name",
     });
     setIcon(editBtn, "pencil");
@@ -604,7 +604,7 @@ export class UploadModal extends Modal {
       e.stopPropagation();
       nameEl.empty();
       const input = nameEl.createEl("input", {
-        cls: "meridian-name-input",
+        cls: "meridian-archiver-name-input",
         type: "text",
       });
       input.value = doc.label ?? filename;
@@ -634,7 +634,7 @@ export class UploadModal extends Modal {
     });
 
     const deleteDocBtn = docActions.createEl("button", {
-      cls: "meridian-icon-btn meridian-icon-btn--danger",
+      cls: "meridian-archiver-icon-btn meridian-archiver-icon-btn--danger",
       title: "Remove all versions from local index",
     });
     setIcon(deleteDocBtn, "trash-2");
@@ -651,13 +651,13 @@ export class UploadModal extends Modal {
     });
 
     // Versions container — hidden by default
-    const versionsEl = container.createDiv({ cls: "meridian-doc-versions" });
+    const versionsEl = container.createDiv({ cls: "meridian-archiver-doc-versions" });
     versionsEl.style.display = "none";
 
     const toggleExpand = (): void => {
       const isExpanded = versionsEl.style.display !== "none";
       versionsEl.style.display = isExpanded ? "none" : "block";
-      chevronBtn.toggleClass("meridian-chevron--expanded", !isExpanded);
+      chevronBtn.toggleClass("meridian-archiver-chevron--expanded", !isExpanded);
     };
 
     chevronBtn.addEventListener("click", toggleExpand);
@@ -673,20 +673,20 @@ export class UploadModal extends Modal {
           ? "\n\nTags:\n" + ver.tags.map((t) => `  ${t[0]}: ${t[1]}`).join("\n")
           : "";
 
-      const verRow = versionsEl.createDiv("meridian-version-row");
+      const verRow = versionsEl.createDiv("meridian-archiver-version-row");
 
-      verRow.createDiv({ cls: "meridian-version-num", text: `v${versionNum}` });
+      verRow.createDiv({ cls: "meridian-archiver-version-num", text: `v${versionNum}` });
 
-      const txEl = verRow.createDiv({ cls: "meridian-col meridian-col-txid" });
+      const txEl = verRow.createDiv({ cls: "meridian-archiver-col meridian-archiver-col-txid" });
       txEl.setText(ver.txId.slice(0, 12) + "...");
       txEl.title = ver.txId + tagSummary;
 
-      verRow.createDiv({ cls: "meridian-col meridian-col-date", text: shortDate(ver.uploadedAt) });
+      verRow.createDiv({ cls: "meridian-archiver-col meridian-archiver-col-date", text: shortDate(ver.uploadedAt) });
 
-      const verActions = verRow.createDiv("meridian-archive-actions");
+      const verActions = verRow.createDiv("meridian-archiver-archive-actions");
 
       const copyBtn = verActions.createEl("button", {
-        cls: "meridian-icon-btn",
+        cls: "meridian-archiver-icon-btn",
         title: "Copy transaction ID",
       });
       setIcon(copyBtn, "copy");
@@ -696,14 +696,14 @@ export class UploadModal extends Modal {
       });
 
       const openBtn = verActions.createEl("button", {
-        cls: "meridian-icon-btn",
+        cls: "meridian-archiver-icon-btn",
         title: "Open in Arweave gateway",
       });
       setIcon(openBtn, "external-link");
       openBtn.addEventListener("click", () => window.open(ver.gatewayUrl, "_blank"));
 
       const deleteVerBtn = verActions.createEl("button", {
-        cls: "meridian-icon-btn meridian-icon-btn--danger",
+        cls: "meridian-archiver-icon-btn meridian-archiver-icon-btn--danger",
         title: "Remove this version from local index",
       });
       setIcon(deleteVerBtn, "trash-2");

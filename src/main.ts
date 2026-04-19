@@ -1,35 +1,65 @@
-import { Notice, Plugin } from "obsidian";
-import { DEFAULT_INDEX_ID, DEFAULT_SETTINGS, MeridianSettingTab, validateJwk } from "./settings";
+import { Notice, Plugin, normalizePath } from "obsidian";
+import {
+  DEFAULT_INDEX_ID,
+  DEFAULT_SETTINGS,
+  MeridianArchiverSettingTab,
+  validateJwk,
+} from "./settings";
 import { UploadModal } from "./upload-modal";
 import type { PluginSettings } from "./types";
 
-export default class MeridianPlugin extends Plugin {
+export default class MeridianArchiverPlugin extends Plugin {
   settings: PluginSettings = DEFAULT_SETTINGS;
 
   async onload(): Promise<void> {
     await this.loadSettings();
 
-    this.addRibbonIcon("archive", "Open Meridian", () => {
+    this.addRibbonIcon("archive", "Open Meridian Archiver", () => {
       this.openUploadModal();
     });
 
     this.addCommand({
-      id: "open-meridian-upload",
+      id: "meridian-archiver-open-upload",
       name: "Open upload modal",
       callback: () => {
         this.openUploadModal();
       },
     });
 
-    this.addSettingTab(new MeridianSettingTab(this.app, this));
+    this.addSettingTab(new MeridianArchiverSettingTab(this.app, this));
   }
 
   onunload(): void {}
 
+  /**
+   * If the legacy plugin id `meridian` was used, copy its data.json once when this plugin has no saved data.
+   */
+  private async tryLoadLegacyPluginData(): Promise<
+    (Partial<PluginSettings> & { indexFilePath?: string }) | null
+  > {
+    try {
+      const rel = normalizePath(`${this.app.vault.configDir}/plugins/meridian/data.json`);
+      if (!(await this.app.vault.adapter.exists(rel))) {
+        return null;
+      }
+      const raw = await this.app.vault.adapter.read(rel);
+      return JSON.parse(raw) as Partial<PluginSettings> & { indexFilePath?: string };
+    } catch {
+      return null;
+    }
+  }
+
   async loadSettings(): Promise<void> {
-    const saved = (await this.loadData()) as Partial<PluginSettings> & {
+    let saved = (await this.loadData()) as Partial<PluginSettings> & {
       indexFilePath?: string;
     };
+
+    if (!saved || Object.keys(saved).length === 0) {
+      const legacy = await this.tryLoadLegacyPluginData();
+      if (legacy) {
+        saved = legacy;
+      }
+    }
 
     this.settings = Object.assign({}, DEFAULT_SETTINGS, saved);
 
@@ -51,14 +81,14 @@ export default class MeridianPlugin extends Plugin {
     const walletValid = validateJwk(this.settings.walletJwk);
     if (walletValid !== true) {
       new Notice(
-        `Meridian: ${walletValid} Go to Settings > Meridian to configure your wallet.`
+        `Meridian Archiver: ${walletValid} Go to Settings > Meridian Archiver to configure your wallet.`
       );
       return;
     }
 
     if (!this.settings.indexes || this.settings.indexes.length === 0) {
       new Notice(
-        "Meridian: No archive indexes configured. Go to Settings > Meridian."
+        "Meridian Archiver: No archive indexes configured. Go to Settings > Meridian Archiver."
       );
       return;
     }

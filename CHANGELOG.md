@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.0 - 2026-03-29
+
+### Breaking
+
+- **Plugin identity:** Obsidian plugin `id` is now `meridian-archiver` (folder under `.obsidian/plugins/`). The display name is **Meridian Archiver**, part of the Meridian suite. Installing this release alongside the old `meridian` id installs a separate plugin; settings are not shared unless you migrate (see README).
+- **Default archive index path** for new installs is now `meridian/archiver/index.json` (suite subfolder per plugin). Existing settings and migrated data keep your configured paths.
+
+### Changed
+
+- chore: rename npm package to `meridian-archiver`; align user-facing copy, commands, and CSS class prefix to `meridian-archiver-*`
+- feat: on first run with empty plugin data, automatically import settings from `.obsidian/plugins/meridian/data.json` when present (legacy plugin id)
+
 ## 0.6.2 - 2026-03-21
 
 Commit: 0bdd98f (2026-03-21T14:54:18-07:00)
