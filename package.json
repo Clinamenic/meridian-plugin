@@ -1,6 +1,6 @@
 {
   "name": "meridian-archiver",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Obsidian plugin (Meridian suite): Arweave uploads and local archive index",
   "main": "main.js",
   "scripts": {

@@ -1,7 +1,7 @@
 {
   "id": "meridian-archiver",
   "name": "Meridian Archiver",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "minAppVersion": "1.0.0",
   "description": "Part of the Meridian suite. Upload vault files to Arweave and track their transaction IDs in a local archive index.",
   "author": "Clinamenic",

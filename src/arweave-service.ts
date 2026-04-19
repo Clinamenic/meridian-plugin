@@ -67,7 +67,8 @@ export class ArweaveService {
       tx.addTag(tag.name, tag.value);
     }
 
-    await this.arweave.transactions.sign(tx, this.jwk);
+    // Node crypto defaults to a max-length PSS salt; Arweave nodes expect salt length 32 (same as WebCrypto in arweave/web).
+    await this.arweave.transactions.sign(tx, this.jwk, { saltLength: 32 });
 
     const response = await this.arweave.transactions.post(tx);
 
