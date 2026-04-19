@@ -2,6 +2,7 @@ import Arweave from "arweave";
 import type { JWKInterface } from "arweave/node/lib/wallet";
 import type { ArweaveTag, UploadResult } from "./types";
 import type { PluginLogger } from "./logger";
+import { corsFreeFetch } from "./cors-fetch";
 
 const MIME_MAP: Record<string, string> = {
   md: "text/markdown",
@@ -58,6 +59,14 @@ export class ArweaveService {
   }
 
   async uploadFile(
+    filePath: string,
+    data: Uint8Array | ArrayBuffer,
+    sessionTags: ArweaveTag[]
+  ): Promise<UploadResult> {
+    return this.withCorsSafeFetch(() => this.doUploadFile(filePath, data, sessionTags));
+  }
+
+  private async doUploadFile(
     filePath: string,
     data: Uint8Array | ArrayBuffer,
     sessionTags: ArweaveTag[]
@@ -130,12 +139,24 @@ export class ArweaveService {
   }
 
   async getAddressBalance(): Promise<string> {
-    const address = await this.arweave.wallets.jwkToAddress(this.jwk);
-    const winstons = await this.arweave.wallets.getBalance(address);
-    return this.arweave.ar.winstonToAr(winstons);
+    return this.withCorsSafeFetch(async () => {
+      const address = await this.arweave.wallets.jwkToAddress(this.jwk);
+      const winstons = await this.arweave.wallets.getBalance(address);
+      return this.arweave.ar.winstonToAr(winstons);
+    });
   }
 
   async getWalletAddress(): Promise<string> {
     return this.arweave.wallets.jwkToAddress(this.jwk);
+  }
+
+  private async withCorsSafeFetch<T>(fn: () => Promise<T>): Promise<T> {
+    const original = globalThis.fetch;
+    globalThis.fetch = corsFreeFetch as unknown as typeof globalThis.fetch;
+    try {
+      return await fn();
+    } finally {
+      globalThis.fetch = original;
+    }
   }
 }

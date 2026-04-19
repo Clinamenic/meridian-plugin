@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.3 - 2026-04-19
+
+### Fixed
+
+- fix(cors): route all Arweave HTTP calls through Obsidian's `requestUrl` to bypass the CORS restriction in Obsidian's renderer process. Direct `fetch` calls to `https://arweave.net` were blocked with "Response to preflight request doesn't pass access control check."
+
 ## 1.0.2 - 2026-04-19
 
 Commit: 3401347 (2026-04-19T11:22:26-07:00)
