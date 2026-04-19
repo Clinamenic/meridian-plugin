@@ -2,6 +2,8 @@
 
 ## 1.0.0 - 2026-03-29
 
+Commit: f7abb0a (2026-04-19T11:09:49-07:00)
+
 ### Breaking
 
 - **Plugin identity:** Obsidian plugin `id` is now `meridian-archiver` (folder under `.obsidian/plugins/`). The display name is **Meridian Archiver**, part of the Meridian suite. Installing this release alongside the old `meridian` id installs a separate plugin; settings are not shared unless you migrate (see README).
