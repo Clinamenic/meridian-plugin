@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.2 - 2026-04-19
+
+### Added
+
+- feat(debug): debug logging toggle in Settings > Developer. When enabled, detailed upload diagnostics (wallet address, tx anchor, reward, sign options, raw gateway response) are written to the developer console.
+
+### Fixed
+
+- fix(arweave): gateway error response body is now included in the "Transaction rejected" error message, so the real reason (e.g. `invalid_proof`) is visible without opening DevTools.
+
 ## 1.0.1 - 2026-04-19
 
 Commit: 0b913a7 (2026-04-19T11:15:51-07:00)

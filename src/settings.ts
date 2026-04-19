@@ -10,6 +10,7 @@ export const DEFAULT_SETTINGS: PluginSettings = {
   activeIndexId: DEFAULT_INDEX_ID,
   allowedExtensions: "md,pdf,png,jpg,jpeg,gif,webp,mp4,mp3,txt,csv,json",
   defaultGateway: "https://arweave.net",
+  debugMode: false,
 };
 
 export class MeridianArchiverSettingTab extends PluginSettingTab {
@@ -195,6 +196,24 @@ export class MeridianArchiverSettingTab extends PluginSettingTab {
             this.plugin.settings.defaultGateway = value.trim().replace(/\/$/, "");
             await this.plugin.saveSettings();
           })
+      );
+
+    // -------------------------------------------------------------------------
+    // Developer
+    // -------------------------------------------------------------------------
+
+    containerEl.createEl("h3", { text: "Developer" });
+
+    new Setting(containerEl)
+      .setName("Debug logging")
+      .setDesc(
+        "Write detailed upload diagnostics to the developer console (Ctrl+Shift+I / Cmd+Option+I). Disable when not needed."
+      )
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.debugMode).onChange(async (value) => {
+          this.plugin.settings.debugMode = value;
+          await this.plugin.saveSettings();
+        })
       );
   }
 }

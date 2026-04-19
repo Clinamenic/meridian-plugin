@@ -46,4 +46,5 @@ export interface PluginSettings {
   activeIndexId: string;
   allowedExtensions: string;
   defaultGateway: string;
+  debugMode: boolean;
 }

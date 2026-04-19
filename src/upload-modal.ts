@@ -4,6 +4,7 @@ import * as fsPromises from "fs/promises";
 import { App, Modal, Notice, setIcon } from "obsidian";
 import { ArweaveService } from "./arweave-service";
 import { IndexManager } from "./index-manager";
+import { PluginLogger } from "./logger";
 import type { ArweaveTag, DocumentRecord, IndexEntry, PluginSettings, VersionRecord } from "./types";
 
 type UploadPhase = "select" | "tags" | "progress";
@@ -399,7 +400,11 @@ export class UploadModal extends Modal {
 
     let service: ArweaveService;
     try {
-      service = new ArweaveService(this.settings.walletJwk, this.settings.defaultGateway);
+      service = new ArweaveService(
+        this.settings.walletJwk,
+        this.settings.defaultGateway,
+        new PluginLogger(this.settings.debugMode)
+      );
     } catch {
       new Notice("Failed to initialize Arweave client. Check your wallet JWK in settings.");
       if (this._progressCloseBtn) this._progressCloseBtn.disabled = false;
