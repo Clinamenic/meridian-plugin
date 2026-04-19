@@ -2,6 +2,8 @@
 
 ## 1.0.1 - 2026-04-19
 
+Commit: 0b913a7 (2026-04-19T11:15:51-07:00)
+
 ### Fixed
 
 - fix(arweave): sign uploads with RSA-PSS salt length 32 so gateways accept transactions. The bundled `arweave` Node signer used a default salt length that did not match network verification, which produced HTTP 400 "Transaction verification failed."
