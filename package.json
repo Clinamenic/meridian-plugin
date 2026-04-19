@@ -1,6 +1,6 @@
 {
   "name": "meridian-archiver",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Obsidian plugin (Meridian suite): Arweave uploads and local archive index",
   "main": "main.js",
   "scripts": {
@@ -8,7 +8,13 @@
     "build": "tsc --noEmit --skipLibCheck && node esbuild.config.mjs production",
     "version": "node version-bump.mjs && git add manifest.json versions.json"
   },
-  "keywords": ["obsidian", "obsidian-plugin", "meridian", "arweave", "archive"],
+  "keywords": [
+    "obsidian",
+    "obsidian-plugin",
+    "meridian",
+    "arweave",
+    "archive"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
