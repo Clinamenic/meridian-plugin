@@ -2,6 +2,8 @@
 
 ## 1.0.6 - 2026-04-19
 
+Commit: 53d95f2 (2026-04-19T12:51:54-07:00)
+
 ### Fixed
 
 - fix(arweave): replace global `fetch` monkey-patching with direct `requestUrl` calls for all Arweave HTTP operations (`/tx_anchor`, `/price/{n}`, `/tx`, `/chunk`, `/wallet/{addr}/balance`). The previous `corsFreeFetch` approach wrapped `requestUrl` responses in `new Response(arrayBuffer, ...)` and the arweave `api.js` layer would call `res.clone().json()` then `res.text()` on the original; in Electron's renderer the body stream state after the clone consumed it was unreliable, causing `last_tx` or `reward` to be silently wrong. A corrupted `last_tx` or `reward` produces an incorrect deepHash, which means the RSA-PSS signature signs the wrong data — the Arweave gateway then rejects it as "Transaction verification failed". By supplying `last_tx` and `reward` directly to `createTransaction`, the library's internal HTTP calls are skipped entirely, and every network request is made explicitly via `requestUrl`. A local `transactions.verify()` step is also logged in debug mode to surface any remaining signing issues before the POST.
