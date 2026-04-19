@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.4 - 2026-04-19
+
+### Fixed
+
+- fix(arweave): always write the full gateway response to the developer console via `console.error` when an upload fails, so the raw error is visible without debug mode enabled.
+
 ## 1.0.3 - 2026-04-19
 
 Commit: e131d60 (2026-04-19T11:30:37-07:00)

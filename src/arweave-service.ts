@@ -111,6 +111,11 @@ export class ArweaveService {
     });
 
     if (response.status !== 200 && response.status !== 202) {
+      this.logger.error("Upload failed — gateway response", {
+        status: response.status,
+        statusText: response.statusText,
+        data: response.data,
+      });
       const bodyError =
         typeof response.data === "object" && response.data !== null
           ? (response.data as Record<string, unknown>).error ?? JSON.stringify(response.data)
