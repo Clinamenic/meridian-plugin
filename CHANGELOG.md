@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.5 - 2026-04-19
+
+### Fixed
+
+- fix(arweave): import from `arweave/node` to force Node.js crypto driver for RSA-PSS signing. esbuild's default browser-platform bundling was resolving `arweave` to the `arweave/web` bundle, which uses SubtleCrypto. Obsidian's Electron renderer has a SubtleCrypto RSA-PSS bug that produces signatures the Arweave gateway rejects. The Node.js crypto driver is stable, available via Electron's Node integration, and produces correct signatures.
+
 ## 1.0.4 - 2026-04-19
 
 Commit: ff5d7fc (2026-04-19T11:59:52-07:00)

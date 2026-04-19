@@ -1,4 +1,4 @@
-import Arweave from "arweave";
+import Arweave from "arweave/node";
 import type { JWKInterface } from "arweave/node/lib/wallet";
 import type { ArweaveTag, UploadResult } from "./types";
 import type { PluginLogger } from "./logger";
