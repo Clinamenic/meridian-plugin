@@ -2,6 +2,8 @@
 
 ## 1.0.2 - 2026-04-19
 
+Commit: 3401347 (2026-04-19T11:22:26-07:00)
+
 ### Added
 
 - feat(debug): debug logging toggle in Settings > Developer. When enabled, detailed upload diagnostics (wallet address, tx anchor, reward, sign options, raw gateway response) are written to the developer console.
